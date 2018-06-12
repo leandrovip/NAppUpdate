@@ -1,5 +1,5 @@
-using NAppUpdate.Framework.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NAppUpdate.Framework.Utils;
 
 namespace NAppUpdate.Tests.Integration
 {
@@ -11,7 +11,7 @@ namespace NAppUpdate.Tests.Integration
 		{
 			var fileDownloader = new FileDownloader("http://www.google.co.uk/intl/en_uk/images/logo.gif");
 
-			byte[] fileData = fileDownloader.Download();
+			var fileData = fileDownloader.Download();
 
 			Assert.IsTrue(fileData.Length > 0);
 		}

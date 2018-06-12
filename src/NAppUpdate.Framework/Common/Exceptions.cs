@@ -6,7 +6,7 @@ namespace NAppUpdate.Framework
 	[Serializable]
 	public class NAppUpdateException : Exception
 	{
-		public NAppUpdateException() : base() { }
+		public NAppUpdateException() { }
 		public NAppUpdateException(string message) : base(message) { }
 		public NAppUpdateException(string message, Exception ex) : base(message, ex) { }
 		public NAppUpdateException(SerializationInfo info, StreamingContext context) : base(info, context) { }
@@ -26,7 +26,7 @@ namespace NAppUpdate.Framework
 	[Serializable]
 	public class UpdateProcessFailedException : NAppUpdateException
 	{
-		public UpdateProcessFailedException() : base() { }
+		public UpdateProcessFailedException() { }
 		public UpdateProcessFailedException(string message) : base(message) { }
 		public UpdateProcessFailedException(string message, Exception ex) : base(message, ex) { }
 		public UpdateProcessFailedException(SerializationInfo info, StreamingContext context) : base(info, context) { }
@@ -35,7 +35,7 @@ namespace NAppUpdate.Framework
 	[Serializable]
 	public class FeedReaderException : NAppUpdateException
 	{
-		public FeedReaderException() : base() { }
+		public FeedReaderException() { }
 		public FeedReaderException(string message) : base(message) { }
 		public FeedReaderException(string message, Exception ex) : base(message, ex) { }
 		public FeedReaderException(SerializationInfo info, StreamingContext context) : base(info, context) { }
@@ -45,8 +45,6 @@ namespace NAppUpdate.Framework
 	public class UserAbortException : NAppUpdateException
 	{
 		public UserAbortException()
-			: base("User abort")
-		{
-		}
+			: base("User abort") { }
 	}
 }

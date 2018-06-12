@@ -1,7 +1,7 @@
-using System.Xml;
 using System.Collections.Generic;
-using NAppUpdate.Framework.Tasks;
+using System.Xml;
 using NAppUpdate.Framework.Conditions;
+using NAppUpdate.Framework.Tasks;
 
 namespace NAppUpdate.Framework.FeedReaders
 {
@@ -13,19 +13,19 @@ namespace NAppUpdate.Framework.FeedReaders
 
 		public IList<IUpdateTask> Read(string feed)
 		{
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.LoadXml(feed);
-			XmlNodeList nl = doc.SelectNodes("/rss/channel/item");
+			var nl = doc.SelectNodes("/rss/channel/item");
 
-			List<IUpdateTask> ret = new List<IUpdateTask>();
+			var ret = new List<IUpdateTask>();
 
 			foreach (XmlNode n in nl)
 			{
-				FileUpdateTask task = new FileUpdateTask();
+				var task = new FileUpdateTask();
 				task.Description = n["description"].InnerText;
 				task.UpdateTo = n["enclosure"].Attributes["url"].Value;
 
-				FileVersionCondition cnd = new FileVersionCondition();
+				var cnd = new FileVersionCondition();
 				cnd.Version = n["appcast:version"].InnerText;
 				if (task.UpdateConditions == null) task.UpdateConditions = new BooleanCondition();
 				task.UpdateConditions.AddCondition(cnd, BooleanCondition.ConditionType.AND);

@@ -10,8 +10,8 @@ namespace NAppUpdate.Framework.Sources
 
 		public MemorySource(string feedString)
 		{
-			this.Feed = feedString;
-			this.tempFiles = new Dictionary<Uri, string>();
+			Feed = feedString;
+			tempFiles = new Dictionary<Uri, string>();
 		}
 
 		public string Feed { get; set; }

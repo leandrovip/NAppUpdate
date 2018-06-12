@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
-using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace NAppUpdate.Updater
@@ -12,7 +10,7 @@ namespace NAppUpdate.Updater
 		public ConsoleForm()
 		{
 			InitializeComponent();
-			this.Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
+			Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath);
 		}
 
 		private void ConsoleForm_Load(object sender, EventArgs e)
@@ -39,16 +37,17 @@ namespace NAppUpdate.Updater
 		public void ReadKey()
 		{
 			// attach the keypress event and then wait for it to receive something
-			this.KeyPress += ConsoleForm_KeyPress;
+			KeyPress += ConsoleForm_KeyPress;
 			rtbConsole.ReadOnly = false;
 			while (_keyPresses == 0)
 			{
 				Application.DoEvents();
-				System.Threading.Thread.Sleep(100);
+				Thread.Sleep(100);
 			}
 		}
 
 		private int _keyPresses;
+
 		private void ConsoleForm_KeyPress(object sender, KeyPressEventArgs e)
 		{
 			HandleKeyPress();
@@ -61,9 +60,8 @@ namespace NAppUpdate.Updater
 
 		private void HandleKeyPress()
 		{
-			this.KeyPress -= ConsoleForm_KeyPress;
+			KeyPress -= ConsoleForm_KeyPress;
 			_keyPresses++;
 		}
-
 	}
 }

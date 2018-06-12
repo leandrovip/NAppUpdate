@@ -9,23 +9,23 @@ namespace WinFormsProgressSample
 	{
 		public override void Prepare(IUpdateSource source)
 		{
-			for (int i = 0; i < 50; i++)
+			for (var i = 0; i < 50; i++)
 			{
 				Thread.Sleep(100);
 				OnProgress(new UpdateProgressInfo
-								{
-									Message = "Doing some work, cycle " + i,
-									Percentage = i * 2,
-									StillWorking = true
-								});
+				{
+					Message = "Doing some work, cycle " + i,
+					Percentage = i * 2,
+					StillWorking = true
+				});
 			}
 
 			OnProgress(new UpdateProgressInfo
-							{
-								Message = "Finished preperations",
-								Percentage = 100,
-								StillWorking = false,
-							});
+			{
+				Message = "Finished preperations",
+				Percentage = 100,
+				StillWorking = false
+			});
 		}
 
 		public override TaskExecutionStatus Execute(bool coldRun)

@@ -7,29 +7,29 @@ using System.Text.RegularExpressions;
 namespace FeedBuilder
 {
 	/// <summary>
-	///   File system enumerator.  This class provides an easy to use, efficient mechanism for searching a list of
-	///   directories for files matching a list of file specifications.  The search is done incrementally as matches
-	///   are consumed, so the overhead before processing the first match is always kept to a minimum.
+	///     File system enumerator.  This class provides an easy to use, efficient mechanism for searching a list of
+	///     directories for files matching a list of file specifications.  The search is done incrementally as matches
+	///     are consumed, so the overhead before processing the first match is always kept to a minimum.
 	/// </summary>
 	public sealed class FileSystemEnumerator
 	{
 		/// <summary>
-		///   Array of paths to be searched.
+		///     Array of paths to be searched.
 		/// </summary>
 		private readonly string[] m_paths;
 
 		/// <summary>
-		///   Array of regular expressions that will detect matching files.
+		///     Array of regular expressions that will detect matching files.
 		/// </summary>
 		private readonly List<Regex> m_fileSpecs;
 
 		/// <summary>
-		///   If true, sub-directories are searched.
+		///     If true, sub-directories are searched.
 		/// </summary>
 		private readonly bool m_includeSubDirs;
 
 		/// <summary>
-		///   Constructor.
+		///     Constructor.
 		/// </summary>
 		/// <param name="pathsToSearch"> Semicolon- or comma-delimitted list of paths to search. </param>
 		/// <param name="fileTypesToMatch"> Semicolon- or comma-delimitted list of wildcard filespecs to match. </param>
@@ -41,17 +41,18 @@ namespace FeedBuilder
 			if (null == fileTypesToMatch) throw new ArgumentNullException("fileTypesToMatch");
 
 			// make sure spec doesn't contain invalid characters
-			if (fileTypesToMatch.IndexOfAny(new[] { ':', '<', '>', '/', '\\' }) >= 0) throw new ArgumentException("Invalid characters in wildcard pattern", "fileTypesToMatch");
+			if (fileTypesToMatch.IndexOfAny(new[] {':', '<', '>', '/', '\\'}) >= 0)
+				throw new ArgumentException("Invalid characters in wildcard pattern", "fileTypesToMatch");
 
 			m_includeSubDirs = includeSubDirs;
-			m_paths = pathsToSearch.Split(new[] { ';', ',' });
+			m_paths = pathsToSearch.Split(';', ',');
 
-			string[] specs = fileTypesToMatch.Split(new[] { ';', ',' });
+			var specs = fileTypesToMatch.Split(';', ',');
 			m_fileSpecs = new List<Regex>(specs.Length);
-			foreach (string spec in specs)
+			foreach (var spec in specs)
 			{
 				// trim whitespace off file spec and convert Win32 wildcards to regular expressions
-				string pattern = spec.Trim().Replace(".", @"\.").Replace("*", @".*").Replace("?", @".?");
+				var pattern = spec.Trim().Replace(".", @"\.").Replace("*", @".*").Replace("?", @".?");
 				m_fileSpecs.Add(new Regex("^" + pattern + "$", RegexOptions.IgnoreCase));
 			}
 		}
@@ -60,20 +61,18 @@ namespace FeedBuilder
 		{
 			foreach (var file in Directory.GetFiles(folderPath))
 			{
-				string fileName = Path.GetFileName(file);
-				foreach (Regex fileSpec in m_fileSpecs)
-				{
+				var fileName = Path.GetFileName(file);
+				foreach (var fileSpec in m_fileSpecs)
 					// if this spec matches, return this file's info
 					if (fileSpec.IsMatch(fileName))
 					{
 						yield return new FileInfo(file);
 						break;
 					}
-				}
 			}
 		}
 
-		void CheckSecurity(string folderPath)
+		private void CheckSecurity(string folderPath)
 		{
 			new FileIOPermission(FileIOPermissionAccess.PathDiscovery, Path.Combine(folderPath, ".")).Demand();
 		}
@@ -92,19 +91,19 @@ namespace FeedBuilder
 		}
 
 		/// <summary>
-		///   Get an enumerator that returns all of the files that match the wildcards that
-		///   are in any of the directories to be searched.
+		///     Get an enumerator that returns all of the files that match the wildcards that
+		///     are in any of the directories to be searched.
 		/// </summary>
 		/// <returns> An IEnumerable that returns all matching files one by one. </returns>
 		/// <remarks>
-		///   The enumerator that is returned finds files using a lazy algorithm that
-		///   searches directories incrementally as matches are consumed.
+		///     The enumerator that is returned finds files using a lazy algorithm that
+		///     searches directories incrementally as matches are consumed.
 		/// </remarks>
 		public IEnumerable<FileInfo> Matches()
 		{
-			foreach (string rootPath in m_paths)
+			foreach (var rootPath in m_paths)
 			{
-				string path = rootPath.Trim();
+				var path = rootPath.Trim();
 
 				// check security - ensure that caller has rights to read this directory
 				CheckSecurity(path);
@@ -113,16 +112,10 @@ namespace FeedBuilder
 					yield return fi;
 
 				if (m_includeSubDirs)
-				{
-
 					foreach (var d in ProcessSubdirectories(path))
-					{
-						foreach (var fi in ProcessFiles(d))
-							yield return fi;
-					}
-				}
+					foreach (var fi in ProcessFiles(d))
+						yield return fi;
 			}
 		}
 	}
 }
-

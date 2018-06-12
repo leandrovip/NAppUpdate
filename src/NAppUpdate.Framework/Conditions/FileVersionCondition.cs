@@ -1,7 +1,8 @@
 ﻿using System;
-using System.IO;
 using System.Diagnostics;
+using System.IO;
 using NAppUpdate.Framework.Common;
+using NAppUpdate.Framework.Tasks;
 using NAppUpdate.Framework.Utils;
 
 namespace NAppUpdate.Framework.Conditions
@@ -21,11 +22,11 @@ namespace NAppUpdate.Framework.Conditions
 		[NauField("what", "Comparison action to perform. Accepted values: above, is, below. Default: below.", false)]
 		public string ComparisonType { get; set; }
 
-		public bool IsMet(Tasks.IUpdateTask task)
+		public bool IsMet(IUpdateTask task)
 		{
 			var localPath = !string.IsNullOrEmpty(LocalPath)
 				? LocalPath
-				: Utils.Reflection.GetNauAttribute(task, "LocalPath") as string;
+				: Reflection.GetNauAttribute(task, "LocalPath") as string;
 
 			// local path is invalid, we can't check for anything so we will return as if the condition was met
 			if (string.IsNullOrEmpty(localPath))
@@ -40,7 +41,8 @@ namespace NAppUpdate.Framework.Conditions
 			var versionInfo = FileVersionInfo.GetVersionInfo(fullPath);
 			if (versionInfo.FileVersion == null) return true; // perform the update if no version info is found
 
-			var localVersion = new Version(versionInfo.FileMajorPart, versionInfo.FileMinorPart, versionInfo.FileBuildPart, versionInfo.FilePrivatePart);
+			var localVersion = new Version(versionInfo.FileMajorPart, versionInfo.FileMinorPart, versionInfo.FileBuildPart,
+				versionInfo.FilePrivatePart);
 			var updateVersion = Version != null ? new Version(Version) : new Version();
 
 			switch (ComparisonType)

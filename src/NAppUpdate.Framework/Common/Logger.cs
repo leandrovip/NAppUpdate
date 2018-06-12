@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Reflection;
 
 namespace NAppUpdate.Framework.Common
 {
@@ -26,14 +27,14 @@ namespace NAppUpdate.Framework.Common
 			{
 				if (Exception == null)
 					return string.Format("{0,-25}\t{1}\t{2}",
-										 Timestamp.ToShortDateString() + " " + Timestamp.ToString("HH:mm:ss.fff"),
-										 Severity,
-										 Message);
+						Timestamp.ToShortDateString() + " " + Timestamp.ToString("HH:mm:ss.fff"),
+						Severity,
+						Message);
 
 				return string.Format("{0,-25}\t{1}\t{2}{3}{4}",
-									 Timestamp.ToShortDateString() + " " + Timestamp.ToString("HH:mm:ss.fff"),
-									 Severity,
-									 Message, Environment.NewLine, Exception);
+					Timestamp.ToShortDateString() + " " + Timestamp.ToString("HH:mm:ss.fff"),
+					Severity,
+					Message, Environment.NewLine, Exception);
 			}
 		}
 
@@ -57,12 +58,14 @@ namespace NAppUpdate.Framework.Common
 		public void Log(SeverityLevel severity, string message, params object[] args)
 		{
 			lock (LogItems)
+			{
 				LogItems.Add(new LogItem
-								{
-									Message = string.Format(message, args),
-									Severity = severity,
-									Timestamp = DateTime.Now,
-								});
+				{
+					Message = string.Format(message, args),
+					Severity = severity,
+					Timestamp = DateTime.Now
+				});
+			}
 		}
 
 		public void Log(Exception exception)
@@ -73,13 +76,15 @@ namespace NAppUpdate.Framework.Common
 		public void Log(Exception exception, string message)
 		{
 			lock (LogItems)
+			{
 				LogItems.Add(new LogItem
-								{
-									Message = message,
-									Severity = SeverityLevel.Error,
-									Timestamp = DateTime.Now,
-									Exception = exception,
-								});
+				{
+					Message = message,
+					Severity = SeverityLevel.Error,
+					Timestamp = DateTime.Now,
+					Exception = exception
+				});
+			}
 		}
 
 		public void Dump()
@@ -91,17 +96,17 @@ namespace NAppUpdate.Framework.Common
 		{
 			if (string.IsNullOrEmpty(filePath))
 			{
-				var workingDir = Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location);
+				var workingDir = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
 				filePath = Path.Combine(workingDir ?? string.Empty, @"NauUpdate.log");
 			}
 
 			lock (LogItems)
 			{
-				using (StreamWriter w = File.CreateText(filePath))
+				using (var w = File.CreateText(filePath))
+				{
 					foreach (var logItem in LogItems)
-					{
 						w.WriteLine(logItem.ToString());
-					}
+				}
 			}
 		}
 	}

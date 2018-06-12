@@ -2,13 +2,13 @@
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using NAppUpdate.Framework;
 using NAppUpdate.Framework.Common;
 using NAppUpdate.Framework.Tasks;
 using NAppUpdate.Framework.Utils;
-using System.Runtime.InteropServices;
 
 namespace NAppUpdate.Updater
 {
@@ -36,9 +36,7 @@ namespace NAppUpdate.Updater
 				Log(ex);
 
 				if (!_appRunning && !_args.Log && !_args.ShowConsole)
-				{
 					MessageBox.Show(ex.ToString());
-				}
 
 				EventLog.WriteEntry("NAppUpdate.Updater", ex.ToString(), EventLogEntryType.Error);
 			}
@@ -64,20 +62,15 @@ namespace NAppUpdate.Updater
 			Log("Starting to process cold updates...");
 
 			if (_args.Log)
-			{
-				// Setup a temporary location for the log file, until we can get the DTO
 				_logFilePath = Path.Combine(_workingDir, @"NauUpdate.log");
-			}
 		}
 
 		private static void PerformUpdates()
 		{
-			string syncProcessName = _args.ProcessName;
+			var syncProcessName = _args.ProcessName;
 
 			if (string.IsNullOrEmpty(syncProcessName))
-			{
 				throw new ArgumentException("Required command line argument is missing", "ProcessName");
-			}
 
 			Log("Update process name: '{0}'", syncProcessName);
 
@@ -87,7 +80,8 @@ namespace NAppUpdate.Updater
 			{
 				Log("Loading {0}", assemblyPath);
 
-				if (assemblyPath.Equals(Assembly.GetEntryAssembly().Location, StringComparison.InvariantCultureIgnoreCase) || assemblyPath.EndsWith("NAppUpdate.Framework.dll"))
+				if (assemblyPath.Equals(Assembly.GetEntryAssembly().Location, StringComparison.InvariantCultureIgnoreCase) ||
+				    assemblyPath.EndsWith("NAppUpdate.Framework.dll"))
 				{
 					Log("\tSkipping (part of current execution)");
 					continue;
@@ -116,9 +110,7 @@ namespace NAppUpdate.Updater
 				try
 				{
 					if (!createdNew)
-					{
 						mutex.WaitOne();
-					}
 				}
 				catch (AbandonedMutexException)
 				{
@@ -135,22 +127,18 @@ namespace NAppUpdate.Updater
 			_dto.LogItems = _logger.LogItems;
 
 			// Get some required environment variables
-			string appPath = _dto.AppPath;
-			string appDir = _dto.WorkingDirectory ?? Path.GetDirectoryName(appPath) ?? string.Empty;
+			var appPath = _dto.AppPath;
+			var appDir = _dto.WorkingDirectory ?? Path.GetDirectoryName(appPath) ?? string.Empty;
 
 			if (!string.IsNullOrEmpty(_dto.AppPath))
-			{
-				_logFilePath = Path.Combine(Path.GetDirectoryName(_dto.AppPath), @"NauUpdate.log"); // now we can log to a more accessible location
-			}
+				_logFilePath =
+					Path.Combine(Path.GetDirectoryName(_dto.AppPath),
+						@"NauUpdate.log"); // now we can log to a more accessible location
 
 			if (_dto.Tasks == null)
-			{
 				throw new Exception("The Task list received in the dto is null");
-			}
-			else if (_dto.Tasks.Count == 0)
-			{
+			if (_dto.Tasks.Count == 0)
 				throw new Exception("The Task list received in the dto is empty");
-			}
 
 			Log("Got {0} task objects", _dto.Tasks.Count);
 
@@ -159,7 +147,8 @@ namespace NAppUpdate.Updater
 			{
 				Log("Task \"{0}\": {1}", t.Description, t.ExecutionStatus);
 
-				if (t.ExecutionStatus != TaskExecutionStatus.RequiresAppRestart && t.ExecutionStatus != TaskExecutionStatus.RequiresPrivilegedAppRestart)
+				if (t.ExecutionStatus != TaskExecutionStatus.RequiresAppRestart &&
+				    t.ExecutionStatus != TaskExecutionStatus.RequiresPrivilegedAppRestart)
 				{
 					Log("\tSkipping");
 					continue;
@@ -180,7 +169,9 @@ namespace NAppUpdate.Updater
 
 				if (t.ExecutionStatus != TaskExecutionStatus.Successful)
 				{
-					string taskFailedMessage = string.Format("Update failed, task execution failed, description: {0}, execution status: {1}", t.Description, t.ExecutionStatus);
+					var taskFailedMessage =
+						string.Format("Update failed, task execution failed, description: {0}, execution status: {1}", t.Description,
+							t.ExecutionStatus);
 					throw new Exception(taskFailedMessage, exception);
 				}
 			}
@@ -189,18 +180,16 @@ namespace NAppUpdate.Updater
 			Log("Removing backup folder");
 
 			if (Directory.Exists(_dto.Configs.BackupFolder))
-			{
 				FileSystem.DeleteDirectory(_dto.Configs.BackupFolder);
-			}
 
 			// Start the application only if requested to do so
 			if (_dto.RelaunchApplication)
 			{
 				Log("Re-launching process {0} with working dir {1}", appPath, appDir);
 
-				bool useShellExecute = !_args.ShowConsole;
+				var useShellExecute = !_args.ShowConsole;
 
-				ProcessStartInfo info = new ProcessStartInfo
+				var info = new ProcessStartInfo
 				{
 					UseShellExecute = useShellExecute,
 					WorkingDirectory = appDir,
@@ -242,10 +231,8 @@ namespace NAppUpdate.Updater
 				_console.ReadKey();
 			}
 
-			if (_dto != null && _dto.Configs != null & !string.IsNullOrEmpty(_dto.Configs.TempFolder))
-			{
+			if (_dto != null && (_dto.Configs != null) & !string.IsNullOrEmpty(_dto.Configs.TempFolder))
 				SelfCleanUp(_dto.Configs.TempFolder);
-			}
 
 			Application.Exit();
 		}
@@ -258,7 +245,8 @@ namespace NAppUpdate.Updater
 			{
 				var info = new ProcessStartInfo
 				{
-					Arguments = string.Format(@"/C ping 1.1.1.1 -n 1 -w 3000 > Nul & echo Y|del ""{0}\*.*"" & rmdir ""{0}""", tempFolder),
+					Arguments = string.Format(@"/C ping 1.1.1.1 -n 1 -w 3000 > Nul & echo Y|del ""{0}\*.*"" & rmdir ""{0}""",
+						tempFolder),
 					WindowStyle = ProcessWindowStyle.Hidden,
 					CreateNoWindow = true,
 					FileName = "cmd.exe"

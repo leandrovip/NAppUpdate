@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
+using System.Reflection;
 using NAppUpdate.Framework;
 using NAppUpdate.Framework.Tasks;
 
@@ -21,21 +21,21 @@ namespace NAppUpdate.SampleApp
 		public UpdateTaskHelper()
 		{
 			_manager = UpdateManager.Instance;
-			this.GetUpdateTaskInfo();
-			this.CurrentVersion = System.Reflection.Assembly.GetExecutingAssembly().GetName().Version.ToString();
+			GetUpdateTaskInfo();
+			CurrentVersion = Assembly.GetExecutingAssembly().GetName().Version.ToString();
 		}
 
 		public IList<UpdateTaskInfo> GetUpdateTaskInfo()
 		{
 			var taskListInfo = new List<UpdateTaskInfo>();
-			foreach (IUpdateTask task in _manager.Tasks)
+			foreach (var task in _manager.Tasks)
 			{
 				var fileTask = task as FileUpdateTask;
 				if (fileTask == null) continue;
 
-				this.UpdateDescription = fileTask.Description;
+				UpdateDescription = fileTask.Description;
 			}
-			this.TaskListInfo = taskListInfo;
+			TaskListInfo = taskListInfo;
 			return taskListInfo;
 		}
 	}

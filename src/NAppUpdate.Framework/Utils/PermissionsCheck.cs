@@ -1,6 +1,6 @@
 ﻿using System.IO;
-using System.Security.Principal;
 using System.Security.AccessControl;
+using System.Security.Principal;
 
 namespace NAppUpdate.Framework.Utils
 {
@@ -12,8 +12,8 @@ namespace NAppUpdate.Framework.Utils
 		public static bool IsDirectory(string path)
 		{
 			if (!Directory.Exists(path)) return false;
-			FileAttributes attr = File.GetAttributes(path);
-			return ((attr & FileAttributes.Directory) == FileAttributes.Directory);
+			var attr = File.GetAttributes(path);
+			return (attr & FileAttributes.Directory) == FileAttributes.Directory;
 		}
 
 		public static bool HaveWritePermissionsForFolder(string path)
@@ -30,19 +30,15 @@ namespace NAppUpdate.Framework.Utils
 			foreach (FileSystemAccessRule rule in rules)
 			{
 				if (rule.AccessControlType == AccessControlType.Deny &&
-					(rule.FileSystemRights & FileSystemRights.WriteData) == FileSystemRights.WriteData &&
-					(groups.Contains(rule.IdentityReference) || rule.IdentityReference.Value == sidCurrentUser)
-					)
-				{
+				    (rule.FileSystemRights & FileSystemRights.WriteData) == FileSystemRights.WriteData &&
+				    (groups.Contains(rule.IdentityReference) || rule.IdentityReference.Value == sidCurrentUser)
+				)
 					denywrite = true;
-				}
 				if (rule.AccessControlType == AccessControlType.Allow &&
-					(rule.FileSystemRights & FileSystemRights.WriteData) == FileSystemRights.WriteData &&
-					(groups.Contains(rule.IdentityReference) || rule.IdentityReference.Value == sidCurrentUser)
-					)
-				{
+				    (rule.FileSystemRights & FileSystemRights.WriteData) == FileSystemRights.WriteData &&
+				    (groups.Contains(rule.IdentityReference) || rule.IdentityReference.Value == sidCurrentUser)
+				)
 					allowwrite = true;
-				}
 			}
 
 			// If we have both allow and deny permissions, the deny takes precident.

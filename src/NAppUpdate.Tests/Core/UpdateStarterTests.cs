@@ -24,7 +24,7 @@ namespace NAppUpdate.Tests.Core
 			Assert.IsTrue(File.Exists(Path.Combine(path, "NAppUpdate.Framework.dll")));
 
 			// Cleanup test
-			NAppUpdate.Framework.Utils.FileSystem.DeleteDirectory(path);
+			FileSystem.DeleteDirectory(path);
 		}
 
 		[TestMethod]
@@ -35,11 +35,11 @@ namespace NAppUpdate.Tests.Core
 				Configs = UpdateManager.Instance.Config,
 				Tasks = new List<IUpdateTask>
 				{
-					new FileUpdateTask {Description = "Task #1", ExecutionStatus = TaskExecutionStatus.RequiresAppRestart},
+					new FileUpdateTask {Description = "Task #1", ExecutionStatus = TaskExecutionStatus.RequiresAppRestart}
 				},
-				AppPath = System.Diagnostics.Process.GetCurrentProcess().MainModule.FileName,
+				AppPath = Process.GetCurrentProcess().MainModule.FileName,
 				WorkingDirectory = Environment.CurrentDirectory,
-				RelaunchApplication = false,
+				RelaunchApplication = false
 			};
 
 			var path = dto.Configs.TempFolder;
@@ -53,7 +53,7 @@ namespace NAppUpdate.Tests.Core
 				UseShellExecute = true,
 				WorkingDirectory = Environment.CurrentDirectory,
 				FileName = Path.Combine(path, dto.Configs.UpdateExecutableName),
-				Arguments = string.Format(@"""{0}"" -showConsole", dto.Configs.UpdateProcessName),
+				Arguments = string.Format(@"""{0}"" -showConsole", dto.Configs.UpdateProcessName)
 			};
 
 			var p = NauIpc.LaunchProcessAndSendDto(dto, info, dto.Configs.UpdateProcessName);

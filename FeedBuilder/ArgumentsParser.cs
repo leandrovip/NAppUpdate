@@ -16,11 +16,12 @@ namespace FeedBuilder
 
 		public ArgumentsParser(IEnumerable<string> args)
 		{
-			foreach (string thisArg in args)
+			foreach (var thisArg in args)
 			{
-				if (thisArg.ToLower() == Application.ExecutablePath.ToLower() || thisArg.ToLower().Contains(".vshost.exe")) continue;
+				if (thisArg.ToLower() == Application.ExecutablePath.ToLower() ||
+				    thisArg.ToLower().Contains(".vshost.exe")) continue;
 
-				string arg = CleanArg(thisArg);
+				var arg = CleanArg(thisArg);
 				if (arg == "build")
 				{
 					Build = true;
@@ -42,7 +43,10 @@ namespace FeedBuilder
 					FileName = thisArg;
 					HasArgs = true;
 				}
-				else Console.WriteLine("Unrecognized arg '{0}'", arg);
+				else
+				{
+					Console.WriteLine("Unrecognized arg '{0}'", arg);
+				}
 			}
 		}
 
@@ -55,7 +59,7 @@ namespace FeedBuilder
 			{
 				// the URI test... filter out things that aren't even trying to look like filenames
 				// ReSharper disable UnusedVariable
-				Uri u = new Uri(filename);
+				var u = new Uri(filename);
 				// ReSharper restore UnusedVariable
 				// see if the arg's parent folder exists
 				var d = Directory.GetParent(filename);
@@ -70,7 +74,7 @@ namespace FeedBuilder
 			const string pattern1 = "^(.*)([=,:](true|0))";
 			arg = arg.ToLower();
 			if (arg.StartsWith("-") || arg.StartsWith("/")) arg = arg.Substring(1);
-			Regex r = new Regex(pattern1);
+			var r = new Regex(pattern1);
 			arg = r.Replace(arg, "{$1}");
 			return arg;
 		}

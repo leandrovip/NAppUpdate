@@ -11,12 +11,12 @@ namespace NAppUpdate.Framework.Tasks
 		public string Description { get; set; }
 		public TaskExecutionStatus ExecutionStatus { get; set; }
 
-		[NonSerialized]
-		private BooleanCondition _updateConditions;
+		[NonSerialized] private BooleanCondition _updateConditions;
+
 		public BooleanCondition UpdateConditions
 		{
-			get { return _updateConditions ?? (_updateConditions = new BooleanCondition()); }
-			set { _updateConditions = value; }
+			get => _updateConditions ?? (_updateConditions = new BooleanCondition());
+			set => _updateConditions = value;
 		}
 
 		[field: NonSerialized]

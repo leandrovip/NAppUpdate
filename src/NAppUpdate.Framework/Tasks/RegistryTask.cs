@@ -1,6 +1,7 @@
 ﻿using System;
-using NAppUpdate.Framework.Common;
 using Microsoft.Win32;
+using NAppUpdate.Framework.Common;
+using NAppUpdate.Framework.Sources;
 
 namespace NAppUpdate.Framework.Tasks
 {
@@ -23,10 +24,10 @@ namespace NAppUpdate.Framework.Tasks
 		public string StringValue { get; set; }
 
 		[NauField("value", "A DWord value to set", false)]
-		public Int32? DWordValue { get; set; }
+		public int? DWordValue { get; set; }
 
 		[NauField("value", "A QWord value to set", false)]
-		public Int64? QWordValue { get; set; }
+		public long? QWordValue { get; set; }
 
 		// Get the first non-null value
 		protected object ValueToSet
@@ -42,18 +43,18 @@ namespace NAppUpdate.Framework.Tasks
 				return null;
 			}
 		}
+
 		private object _originalValue;
 
-		public override void Prepare(Sources.IUpdateSource source)
+		public override void Prepare(IUpdateSource source)
 		{
 			// No preparation required
 		}
 
 		public override TaskExecutionStatus Execute(bool coldRun /* unused */)
 		{
-			if (String.IsNullOrEmpty(KeyName) || String.IsNullOrEmpty(KeyValueName))
+			if (string.IsNullOrEmpty(KeyName) || string.IsNullOrEmpty(KeyValueName))
 				return ExecutionStatus = TaskExecutionStatus.Successful;
-
 
 			// Get the current value and store in case we need to rollback
 			// This is also used to prematurely detect incorrect key and value paths

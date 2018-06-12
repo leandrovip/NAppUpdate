@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using NAppUpdate.Framework.Common;
+using NAppUpdate.Framework.Tasks;
 using NAppUpdate.Framework.Utils;
 
 namespace NAppUpdate.Framework.Conditions
@@ -17,9 +18,11 @@ namespace NAppUpdate.Framework.Conditions
 
 		public IDictionary<string, string> Attributes { get; private set; }
 
-		public bool IsMet(Tasks.IUpdateTask task)
+		public bool IsMet(IUpdateTask task)
 		{
-			string localPath = !string.IsNullOrEmpty(LocalPath) ? LocalPath : Utils.Reflection.GetNauAttribute(task, "LocalPath") as string;
+			var localPath = !string.IsNullOrEmpty(LocalPath)
+				? LocalPath
+				: Reflection.GetNauAttribute(task, "LocalPath") as string;
 			if (string.IsNullOrEmpty(localPath))
 				return true;
 			var fullPath = FileSystem.GetFullPath(localPath);

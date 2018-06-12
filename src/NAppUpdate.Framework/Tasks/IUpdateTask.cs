@@ -1,6 +1,7 @@
 ﻿using System;
 using NAppUpdate.Framework.Common;
 using NAppUpdate.Framework.Conditions;
+using NAppUpdate.Framework.Sources;
 
 namespace NAppUpdate.Framework.Tasks
 {
@@ -13,8 +14,8 @@ namespace NAppUpdate.Framework.Tasks
 		Successful,
 		Failed,
 		RequiresAppRestart,
-		RequiresPrivilegedAppRestart,
-	};
+		RequiresPrivilegedAppRestart
+	}
 
 	public interface IUpdateTask : INauFieldsHolder
 	{
@@ -24,21 +25,21 @@ namespace NAppUpdate.Framework.Tasks
 		event ReportProgressDelegate ProgressDelegate;
 
 		/// <summary>
-		/// Do all work, especially if it is lengthy, required to prepare the update task, except from
-		/// the final trivial operations required to actually perform the update.
+		///     Do all work, especially if it is lengthy, required to prepare the update task, except from
+		///     the final trivial operations required to actually perform the update.
 		/// </summary>
 		/// <param name="source">An update source object, in case more data is required</param>
-		void Prepare(Sources.IUpdateSource source);
+		void Prepare(IUpdateSource source);
 
 		/// <summary>
-		/// Execute the update. After all preparation is done, this call should be quite a short one
-		/// to perform.
+		///     Execute the update. After all preparation is done, this call should be quite a short one
+		///     to perform.
 		/// </summary>
 		/// <returns>True if successful, false otherwise</returns>
 		TaskExecutionStatus Execute(bool coldRun);
 
 		/// <summary>
-		/// Rollback the update performed by this task.
+		///     Rollback the update performed by this task.
 		/// </summary>
 		/// <returns>True if successful, false otherwise</returns>
 		bool Rollback();

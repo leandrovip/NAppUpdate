@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using NAppUpdate.Framework.Tasks;
 
 namespace NAppUpdate.Framework.Conditions
 {
@@ -13,13 +14,12 @@ namespace NAppUpdate.Framework.Conditions
 		{
 			AND = 1,
 			OR = 2,
-			NOT = 4,
+			NOT = 4
 		}
 
 		public static ConditionType ConditionTypeFromString(string type)
 		{
 			if (!string.IsNullOrEmpty(type))
-			{
 				switch (type.ToLower())
 				{
 					case "and":
@@ -32,19 +32,19 @@ namespace NAppUpdate.Framework.Conditions
 					case "or-not":
 						return ConditionType.OR | ConditionType.NOT;
 				}
-			}
 
 			// Make AND the default condition type
 			return ConditionType.AND;
 		}
+
 		#endregion
 
 		protected class ConditionItem
 		{
 			public ConditionItem(IUpdateCondition cnd, ConditionType typ)
 			{
-				this._Condition = cnd;
-				this._ConditionType = typ;
+				_Condition = cnd;
+				_ConditionType = typ;
 			}
 
 			internal bool HasConditionType(ConditionType type)
@@ -62,7 +62,15 @@ namespace NAppUpdate.Framework.Conditions
 		}
 
 		protected LinkedList<ConditionItem> ChildConditions { get; set; }
-		public int ChildConditionsCount { get { if (ChildConditions != null) return ChildConditions.Count; return 0; } }
+
+		public int ChildConditionsCount
+		{
+			get
+			{
+				if (ChildConditions != null) return ChildConditions.Count;
+				return 0;
+			}
+		}
 
 		public void AddCondition(IUpdateCondition cnd)
 		{
@@ -85,7 +93,7 @@ namespace NAppUpdate.Framework.Conditions
 
 		public IDictionary<string, string> Attributes { get; private set; }
 
-		public bool IsMet(Tasks.IUpdateTask task)
+		public bool IsMet(IUpdateTask task)
 		{
 			if (ChildConditions == null)
 				return true;
@@ -93,7 +101,7 @@ namespace NAppUpdate.Framework.Conditions
 			// perform the update if Passed == true
 			// otherwise, do not perform the update
 			bool passed = true, firstRun = true;
-			foreach (ConditionItem item in ChildConditions)
+			foreach (var item in ChildConditions)
 			{
 				// If after the first iteration, accept as fulfilled if we are at an OR clause and the conditions
 				// before this checked OK (i.e. update needed)

@@ -30,7 +30,9 @@ namespace NAppUpdate.Framework.Utils
 		public byte[] Download()
 		{
 			using (var client = new WebClient())
+			{
 				return client.DownloadData(_uri);
+			}
 		}
 
 		public bool DownloadToFile(string tempLocation)
@@ -51,11 +53,11 @@ namespace NAppUpdate.Framework.Utils
 					if (responseStream == null)
 						return false;
 
-					long downloadSize = response.ContentLength;
+					var downloadSize = response.ContentLength;
 					long totalBytes = 0;
 					var buffer = new byte[_bufferSize];
 					const int reportInterval = 1;
-					DateTime stamp = DateTime.Now.Subtract(new TimeSpan(0, 0, reportInterval));
+					var stamp = DateTime.Now.Subtract(new TimeSpan(0, 0, reportInterval));
 					int bytesRead;
 					do
 					{
@@ -76,23 +78,25 @@ namespace NAppUpdate.Framework.Utils
 
 		private void ReportProgress(Action<UpdateProgressInfo> onProgress, long totalBytes, long downloadSize)
 		{
-			if (onProgress != null) onProgress(new DownloadProgressInfo
-			{
-				DownloadedInBytes = totalBytes,
-				FileSizeInBytes = downloadSize,
-				Percentage = (int)(((float)totalBytes / (float)downloadSize) * 100),
-				Message = string.Format("Downloading... ({0} / {1} completed)", ToFileSizeString(totalBytes), ToFileSizeString(downloadSize)),
-				StillWorking = totalBytes == downloadSize,
-			});
+			if (onProgress != null)
+				onProgress(new DownloadProgressInfo
+				{
+					DownloadedInBytes = totalBytes,
+					FileSizeInBytes = downloadSize,
+					Percentage = (int) (totalBytes / (float) downloadSize * 100),
+					Message = string.Format("Downloading... ({0} / {1} completed)", ToFileSizeString(totalBytes),
+						ToFileSizeString(downloadSize)),
+					StillWorking = totalBytes == downloadSize
+				});
 		}
 
 		private string ToFileSizeString(long size)
 		{
-			if (size < 1000) return String.Format("{0} bytes", size);
-			if (size < 1000000) return String.Format("{0:F1} KB", (size / 1000));
-			if (size < 1000000000) return String.Format("{0:F1} MB", (size / 1000000));
-			if (size < 1000000000000) return String.Format("{0:F1} GB", (size / 1000000000));
-			if (size < 1000000000000000) return String.Format("{0:F1} TB", (size / 1000000000000));
+			if (size < 1000) return string.Format("{0} bytes", size);
+			if (size < 1000000) return string.Format("{0:F1} KB", size / 1000);
+			if (size < 1000000000) return string.Format("{0:F1} MB", size / 1000000);
+			if (size < 1000000000000) return string.Format("{0:F1} GB", size / 1000000000);
+			if (size < 1000000000000000) return string.Format("{0:F1} TB", size / 1000000000000);
 			return size.ToString(CultureInfo.InvariantCulture);
 		}
 

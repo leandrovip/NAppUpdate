@@ -1,15 +1,12 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NAppUpdate.Framework;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NAppUpdate.Framework.Conditions;
+using NAppUpdate.Framework.FeedReaders;
 using NAppUpdate.Framework.Tasks;
 
 namespace NAppUpdate.Tests.FeedReaders
 {
 	/// <summary>
-	/// Summary description for NauXmlFeedReaderTest
+	///     Summary description for NauXmlFeedReaderTest
 	/// </summary>
 	[TestClass]
 	public class NauXmlFeedReaderTests
@@ -32,8 +29,8 @@ namespace NAppUpdate.Tests.FeedReaders
   </Tasks>
 </Feed>";
 
-			var reader = new NAppUpdate.Framework.FeedReaders.NauXmlFeedReader();
-			IList<IUpdateTask> updates = reader.Read(NauUpdateFeed);
+			var reader = new NauXmlFeedReader();
+			var updates = reader.Read(NauUpdateFeed);
 
 			Assert.IsTrue(updates.Count == 1);
 
@@ -70,8 +67,8 @@ namespace NAppUpdate.Tests.FeedReaders
   </Tasks>
 </Feed>";
 
-			var reader = new NAppUpdate.Framework.FeedReaders.NauXmlFeedReader();
-			IList<IUpdateTask> updates = reader.Read(NauUpdateFeed);
+			var reader = new NauXmlFeedReader();
+			var updates = reader.Read(NauUpdateFeed);
 
 			Assert.IsTrue(updates.Count == 1);
 
@@ -107,8 +104,8 @@ namespace NAppUpdate.Tests.FeedReaders
   </Tasks>
 </Feed>";
 
-			var reader = new NAppUpdate.Framework.FeedReaders.NauXmlFeedReader();
-			IList<IUpdateTask> updates = reader.Read(NauUpdateFeed);
+			var reader = new NauXmlFeedReader();
+			var updates = reader.Read(NauUpdateFeed);
 
 			Assert.IsTrue(updates.Count == 1);
 

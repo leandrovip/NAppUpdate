@@ -13,9 +13,9 @@ namespace WinFormsSampleApp
 		private Button btnCancel;
 		private TextBox txtInput;
 
-		///<summary>
-		///  Required designer variable.
-		///</summary>
+		/// <summary>
+		///     Required designer variable.
+		/// </summary>
 		private readonly Container components = null;
 
 		public frmInputBoxDialog()
@@ -27,9 +27,9 @@ namespace WinFormsSampleApp
 
 		#region Dispose
 
-		///<summary>
-		///  Clean up any resources being used.
-		///</summary>
+		/// <summary>
+		///     Clean up any resources being used.
+		/// </summary>
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing) if (components != null) components.Dispose();
@@ -40,10 +40,10 @@ namespace WinFormsSampleApp
 
 		#region Windows Form Designer generated code
 
-		///<summary>
-		///  Required method for Designer support - do not modify
-		///  the contents of this method with the code editor.
-		///</summary>
+		/// <summary>
+		///     Required method for Designer support - do not modify
+		///     the contents of this method with the code editor.
+		/// </summary>
 		private void InitializeComponent()
 		{
 			this.lblPrompt = new System.Windows.Forms.Label();
@@ -54,9 +54,14 @@ namespace WinFormsSampleApp
 			// 
 			// lblPrompt
 			// 
-			this.lblPrompt.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) | System.Windows.Forms.AnchorStyles.Left) | System.Windows.Forms.AnchorStyles.Right)));
+			this.lblPrompt.Anchor =
+			((System.Windows.Forms.AnchorStyles) ((((System.Windows.Forms.AnchorStyles.Top |
+			                                         System.Windows.Forms.AnchorStyles.Bottom) |
+			                                        System.Windows.Forms.AnchorStyles.Left) |
+			                                       System.Windows.Forms.AnchorStyles.Right)));
 			this.lblPrompt.BackColor = System.Drawing.SystemColors.Control;
-			this.lblPrompt.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+			this.lblPrompt.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular,
+				System.Drawing.GraphicsUnit.Point, ((byte) (0)));
 			this.lblPrompt.Location = new System.Drawing.Point(12, 9);
 			this.lblPrompt.Name = "lblPrompt";
 			this.lblPrompt.Size = new System.Drawing.Size(302, 82);
@@ -114,41 +119,20 @@ namespace WinFormsSampleApp
 
 		#region Private Variables
 
-		private string formCaption = string.Empty;
-		private string formPrompt = string.Empty;
-		private string inputResponse = string.Empty;
-		private string defaultValue = string.Empty;
-
 		#endregion
 
 		#region Public Properties
 
-		public string FormCaption
-		{
-			get { return formCaption; }
-			set { formCaption = value; }
-		}
+		public string FormCaption { get; set; } = string.Empty;
 
 		// property FormCaption
-		public string FormPrompt
-		{
-			get { return formPrompt; }
-			set { formPrompt = value; }
-		}
+		public string FormPrompt { get; set; } = string.Empty;
 
 		// property FormPrompt
-		public string InputResponse
-		{
-			get { return inputResponse; }
-			set { inputResponse = value; }
-		}
+		public string InputResponse { get; set; } = string.Empty;
 
 		// property InputResponse
-		public string DefaultValue
-		{
-			get { return defaultValue; }
-			set { defaultValue = value; }
-		}
+		public string DefaultValue { get; set; } = string.Empty;
 
 		// property DefaultValue
 
@@ -158,14 +142,13 @@ namespace WinFormsSampleApp
 
 		private void InputBox_Load(object sender, EventArgs e)
 		{
-			txtInput.Text = defaultValue;
-			lblPrompt.Text = formPrompt;
-			Text = formCaption;
+			txtInput.Text = DefaultValue;
+			lblPrompt.Text = FormPrompt;
+			Text = FormCaption;
 			txtInput.SelectionStart = 0;
 			txtInput.SelectionLength = txtInput.Text.Length;
 			txtInput.Focus();
 		}
-
 
 		private void btnOK_Click(object sender, EventArgs e)
 		{

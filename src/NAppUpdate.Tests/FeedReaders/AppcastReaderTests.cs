@@ -1,15 +1,14 @@
-using System;
 using System.Linq;
-using NAppUpdate.Framework;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using NAppUpdate.Framework.FeedReaders;
 
 namespace NAppUpdate.Tests.Unit
 {
 	[TestClass]
 	public class AppcastReaderTests
 	{
-		const string ZuneUpdateFeed =
-				@"<?xml version=""1.0"" encoding=""utf-8""?>
+		private const string ZuneUpdateFeed =
+			@"<?xml version=""1.0"" encoding=""utf-8""?>
 <rss version=""2.0"" xmlns:appcast=""http://www.adobe.com/xml-namespaces/appcast/1.0"">
   <channel>
     <title>Zune Social Tagger Update Feed</title>
@@ -29,7 +28,7 @@ namespace NAppUpdate.Tests.Unit
 		[TestMethod]
 		public void Should_be_able_to_get_the_description_from_the_update()
 		{
-			var reader = new NAppUpdate.Framework.FeedReaders.AppcastReader();
+			var reader = new AppcastReader();
 			var updates = reader.Read(ZuneUpdateFeed);
 
 			Assert.AreEqual(1, updates.Count());

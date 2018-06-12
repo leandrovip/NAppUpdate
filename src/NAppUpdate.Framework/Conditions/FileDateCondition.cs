@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using NAppUpdate.Framework.Common;
+using NAppUpdate.Framework.Tasks;
 using NAppUpdate.Framework.Utils;
 
 namespace NAppUpdate.Framework.Conditions
@@ -24,14 +25,14 @@ namespace NAppUpdate.Framework.Conditions
 		[NauField("what", "Comparison action to perform. Accepted values: newer, is, older. Default: older.", false)]
 		public string ComparisonType { get; set; }
 
-		public bool IsMet(Tasks.IUpdateTask task)
+		public bool IsMet(IUpdateTask task)
 		{
 			if (Timestamp == DateTime.MinValue)
 				return true;
 
-			string localPath = !string.IsNullOrEmpty(LocalPath)
-								   ? LocalPath
-								   : Utils.Reflection.GetNauAttribute(task, "LocalPath") as string;
+			var localPath = !string.IsNullOrEmpty(LocalPath)
+				? LocalPath
+				: Reflection.GetNauAttribute(task, "LocalPath") as string;
 
 			// local path is invalid, we can't check for anything so we will return as if the condition was met
 			if (string.IsNullOrEmpty(localPath))

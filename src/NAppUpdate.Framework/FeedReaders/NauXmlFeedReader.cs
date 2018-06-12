@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Xml;
-
-using NAppUpdate.Framework.Tasks;
 using NAppUpdate.Framework.Conditions;
+using NAppUpdate.Framework.Tasks;
+using NAppUpdate.Framework.Utils;
 
 namespace NAppUpdate.Framework.FeedReaders
 {
@@ -22,25 +23,25 @@ namespace NAppUpdate.Framework.FeedReaders
 			{
 				_updateConditions = new Dictionary<string, Type>();
 				_updateTasks = new Dictionary<string, Type>();
-				Utils.Reflection.FindTasksAndConditionsInAssembly(this.GetType().Assembly, _updateTasks, _updateConditions);
+				Reflection.FindTasksAndConditionsInAssembly(GetType().Assembly, _updateTasks, _updateConditions);
 			}
 
-			List<IUpdateTask> ret = new List<IUpdateTask>();
+			var ret = new List<IUpdateTask>();
 
-			XmlDocument doc = new XmlDocument();
+			var doc = new XmlDocument();
 			doc.LoadXml(feed);
 
 			// Support for different feed versions
-			XmlNode root = doc.SelectSingleNode(@"/Feed[version=""1.0""] | /Feed") ?? doc;
+			var root = doc.SelectSingleNode(@"/Feed[version=""1.0""] | /Feed") ?? doc;
 
 			if (root.Attributes["BaseUrl"] != null && !string.IsNullOrEmpty(root.Attributes["BaseUrl"].Value))
 				UpdateManager.Instance.BaseUrl = root.Attributes["BaseUrl"].Value;
 
 			// Temporary collection of attributes, used to aggregate them all with their values
 			// to reduce Reflection calls
-			Dictionary<string, string> attributes = new Dictionary<string, string>();
+			var attributes = new Dictionary<string, string>();
 
-			XmlNodeList nl = root.SelectNodes("./Tasks/*");
+			var nl = root.SelectNodes("./Tasks/*");
 			if (nl == null) return new List<IUpdateTask>(); // TODO: wrong format, probably should throw exception
 			foreach (XmlNode node in nl)
 			{
@@ -48,7 +49,7 @@ namespace NAppUpdate.Framework.FeedReaders
 				if (!_updateTasks.ContainsKey(node.Name))
 					continue;
 
-				IUpdateTask task = (IUpdateTask)Activator.CreateInstance(_updateTasks[node.Name]);
+				var task = (IUpdateTask) Activator.CreateInstance(_updateTasks[node.Name]);
 
 				// Store all other task attributes, to be used by the task object later
 				if (node.Attributes != null)
@@ -62,7 +63,7 @@ namespace NAppUpdate.Framework.FeedReaders
 					}
 					if (attributes.Count > 0)
 					{
-						Utils.Reflection.SetNauAttributes(task, attributes);
+						Reflection.SetNauAttributes(task, attributes);
 						attributes.Clear();
 					}
 					// TODO: Check to see if all required task fields have been set
@@ -76,12 +77,14 @@ namespace NAppUpdate.Framework.FeedReaders
 					// Read update conditions
 					if (node["Conditions"] != null)
 					{
-						IUpdateCondition conditionObject = ReadCondition(node["Conditions"]);
+						var conditionObject = ReadCondition(node["Conditions"]);
 						if (conditionObject != null)
 						{
 							var boolCond = conditionObject as BooleanCondition;
 							if (boolCond != null)
+							{
 								task.UpdateConditions = boolCond;
+							}
 							else
 							{
 								if (task.UpdateConditions == null) task.UpdateConditions = new BooleanCondition();
@@ -101,25 +104,26 @@ namespace NAppUpdate.Framework.FeedReaders
 			IUpdateCondition conditionObject = null;
 			if (cnd.ChildNodes.Count > 0 || "GroupCondition".Equals(cnd.Name))
 			{
-				BooleanCondition bc = new BooleanCondition();
+				var bc = new BooleanCondition();
 				foreach (XmlNode child in cnd.ChildNodes)
 				{
-					IUpdateCondition childCondition = ReadCondition(child);
+					var childCondition = ReadCondition(child);
 					if (childCondition != null)
 						bc.AddCondition(childCondition,
-										BooleanCondition.ConditionTypeFromString(child.Attributes != null && child.Attributes["type"] != null
-																					 ? child.Attributes["type"].Value : null));
+							BooleanCondition.ConditionTypeFromString(child.Attributes != null && child.Attributes["type"] != null
+								? child.Attributes["type"].Value
+								: null));
 				}
 				if (bc.ChildConditionsCount > 0)
 					conditionObject = bc.Degrade();
 			}
 			else if (_updateConditions.ContainsKey(cnd.Name))
 			{
-				conditionObject = (IUpdateCondition)Activator.CreateInstance(_updateConditions[cnd.Name]);
+				conditionObject = (IUpdateCondition) Activator.CreateInstance(_updateConditions[cnd.Name]);
 
 				if (cnd.Attributes != null)
 				{
-					Dictionary<string, string> dict = new Dictionary<string, string>();
+					var dict = new Dictionary<string, string>();
 
 					// Store all other attributes, to be used by the condition object later
 					foreach (XmlAttribute att in cnd.Attributes)
@@ -130,7 +134,7 @@ namespace NAppUpdate.Framework.FeedReaders
 						dict.Add(att.Name, att.Value);
 					}
 					if (dict.Count > 0)
-						Utils.Reflection.SetNauAttributes(conditionObject, dict);
+						Reflection.SetNauAttributes(conditionObject, dict);
 				}
 			}
 			return conditionObject;
@@ -138,14 +142,14 @@ namespace NAppUpdate.Framework.FeedReaders
 
 		#endregion
 
-		public void LoadConditionsAndTasks(System.Reflection.Assembly assembly)
+		public void LoadConditionsAndTasks(Assembly assembly)
 		{
 			if (_updateTasks == null)
 			{
 				_updateConditions = new Dictionary<string, Type>();
 				_updateTasks = new Dictionary<string, Type>();
 			}
-			Utils.Reflection.FindTasksAndConditionsInAssembly(assembly, _updateTasks, _updateConditions);
+			Reflection.FindTasksAndConditionsInAssembly(assembly, _updateTasks, _updateConditions);
 		}
 	}
 }

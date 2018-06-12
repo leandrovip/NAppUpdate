@@ -1,21 +1,18 @@
 using System;
-using System.ComponentModel;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Pipes;
 using System.Runtime.InteropServices;
-using System.Threading;
-using Microsoft.Win32.SafeHandles;
-using System.Collections.Generic;
 using System.Runtime.Serialization.Formatters.Binary;
 using NAppUpdate.Framework.Common;
 using NAppUpdate.Framework.Tasks;
-using System.IO.Pipes;
 
 namespace NAppUpdate.Framework.Utils
 {
 	/// <summary>
-	/// Starts the cold update process by extracting the updater app from the library's resources,
-	/// passing it all the data it needs and terminating the current application
+	///     Starts the cold update process by extracting the updater app from the library's resources,
+	///     passing it all the data it needs and terminating the current application
 	/// </summary>
 	internal static class NauIpc
 	{
@@ -33,7 +30,7 @@ namespace NAppUpdate.Framework.Utils
 		private const int PIPE_TIMEOUT = 15000;
 
 		/// <summary>
-		/// Launches the specifies process and sends the dto object to it using a named pipe
+		///     Launches the specifies process and sends the dto object to it using a named pipe
 		/// </summary>
 		/// <param name="dto">Dto object to send</param>
 		/// <param name="processStartInfo">Process info for the process to start</param>
@@ -43,14 +40,13 @@ namespace NAppUpdate.Framework.Utils
 		{
 			Process p;
 
-			using (NamedPipeServerStream pipe = new NamedPipeServerStream(syncProcessName, PipeDirection.Out, 1, PipeTransmissionMode.Message, PipeOptions.Asynchronous))
+			using (var pipe = new NamedPipeServerStream(syncProcessName, PipeDirection.Out, 1, PipeTransmissionMode.Message,
+				PipeOptions.Asynchronous))
 			{
 				p = Process.Start(processStartInfo);
 
 				if (p == null)
-				{
 					throw new ProcessStartFailedException("The process failed to start");
-				}
 
 				var asyncResult = pipe.BeginWaitForConnection(null, null);
 
@@ -58,14 +54,15 @@ namespace NAppUpdate.Framework.Utils
 				{
 					pipe.EndWaitForConnection(asyncResult);
 
-					BinaryFormatter formatter = new BinaryFormatter();
+					var formatter = new BinaryFormatter();
 					formatter.Serialize(pipe, dto);
 				}
 				else if (p.HasExited)
 				{
-					Type exceptionType = Marshal.GetExceptionForHR(p.ExitCode).GetType();
+					var exceptionType = Marshal.GetExceptionForHR(p.ExitCode).GetType();
 
-					throw new TimeoutException(string.Format("The NamedPipeServerStream timed out waiting for a named pipe connection, " +
+					throw new TimeoutException(string.Format(
+						"The NamedPipeServerStream timed out waiting for a named pipe connection, " +
 						"but the process has exited with exit code: {0} ({1})", p.ExitCode, exceptionType.FullName));
 				}
 				else
@@ -78,7 +75,7 @@ namespace NAppUpdate.Framework.Utils
 		}
 
 		/// <summary>
-		/// Reads the dto object from the named pipe
+		///     Reads the dto object from the named pipe
 		/// </summary>
 		/// <param name="syncProcessName">Name of the pipe to read from</param>
 		/// <returns>The dto object read from the pipe</returns>
@@ -86,18 +83,16 @@ namespace NAppUpdate.Framework.Utils
 		{
 			NauDto dto;
 
-			using (NamedPipeClientStream pipe = new NamedPipeClientStream(".", syncProcessName, PipeDirection.In, PipeOptions.Asynchronous))
+			using (var pipe = new NamedPipeClientStream(".", syncProcessName, PipeDirection.In, PipeOptions.Asynchronous))
 			{
 				pipe.Connect(PIPE_TIMEOUT);
 
-				BinaryFormatter formatter = new BinaryFormatter();
+				var formatter = new BinaryFormatter();
 				dto = formatter.Deserialize(pipe) as NauDto;
 			}
 
 			if (dto == null || dto.Configs == null)
-			{
 				throw new Exception("Failed to read the dto from the pipe stream");
-			}
 
 			return dto;
 		}
@@ -109,7 +104,9 @@ namespace NAppUpdate.Framework.Utils
 
 			//store the updater temporarily in the designated folder            
 			using (var writer = new BinaryWriter(File.Open(Path.Combine(updaterPath, hostExeName), FileMode.Create)))
+			{
 				writer.Write(Resources.updater);
+			}
 
 			// Now copy the NAU DLL
 			var assemblyLocation = typeof(NauIpc).Assembly.Location;
@@ -122,7 +119,7 @@ namespace NAppUpdate.Framework.Utils
 
 			foreach (var dep in UpdateManager.Instance.Config.DependenciesForColdUpdate)
 			{
-				string fullPath = Path.Combine(assemblyPath, dep);
+				var fullPath = Path.Combine(assemblyPath, dep);
 				if (!File.Exists(fullPath)) continue;
 
 				var dest = Path.Combine(updaterPath, dep);

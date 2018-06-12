@@ -1,7 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using System;
 using System.Threading;
 using NAppUpdate.Framework.Common;
 using NAppUpdate.Framework.FeedReaders;
@@ -12,14 +12,15 @@ using NAppUpdate.Framework.Utils;
 namespace NAppUpdate.Framework
 {
 	/// <summary>
-	/// An UpdateManager class is a singleton class handling the update process from start to end for a consumer application
+	///     An UpdateManager class is a singleton class handling the update process from start to end for a consumer
+	///     application
 	/// </summary>
 	public sealed class UpdateManager
 	{
 		#region Singleton Stuff
 
 		/// <summary>
-		/// Defaut ctor
+		///     Defaut ctor
 		/// </summary>
 		private UpdateManager()
 		{
@@ -30,15 +31,15 @@ namespace NAppUpdate.Framework
 			UpdateFeedReader = new NauXmlFeedReader();
 			Logger = new Logger();
 			Config = new NauConfigurations
-						{
-							TempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()),
-							UpdateProcessName = "NAppUpdateProcess",
-							UpdateExecutableName = "foo.exe", // Naming it updater.exe seem to trigger the UAC, and we don't want that
-						};
+			{
+				TempFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString()),
+				UpdateProcessName = "NAppUpdateProcess",
+				UpdateExecutableName = "foo.exe" // Naming it updater.exe seem to trigger the UAC, and we don't want that
+			};
 
 			// Need to do this manually here because the BackupFolder property is protected using the static instance, which we are
 			// in the middle of creating
-			string backupPath = Path.Combine(Path.GetDirectoryName(ApplicationPath) ?? string.Empty, "Backup" + DateTime.Now.Ticks);
+			var backupPath = Path.Combine(Path.GetDirectoryName(ApplicationPath) ?? string.Empty, "Backup" + DateTime.Now.Ticks);
 			backupPath = backupPath.TrimEnd(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 			Config._backupFolder = Path.IsPathRooted(backupPath) ? backupPath : Path.Combine(Config.TempFolder, backupPath);
 		}
@@ -46,13 +47,10 @@ namespace NAppUpdate.Framework
 		static UpdateManager() { }
 
 		/// <summary>
-		/// The singleton update manager instance to used by consumer applications
+		///     The singleton update manager instance to used by consumer applications
 		/// </summary>
-		public static UpdateManager Instance
-		{
-			get { return instance; }
-		}
-		private static readonly UpdateManager instance = new UpdateManager();
+		public static UpdateManager Instance { get; } = new UpdateManager();
+
 		// ReSharper disable NotAccessedField.Local
 		private static Mutex _shutdownMutex;
 		// ReSharper restore NotAccessedField.Local
@@ -60,7 +58,7 @@ namespace NAppUpdate.Framework
 		#endregion
 
 		/// <summary>
-		/// State of the update process
+		///     State of the update process
 		/// </summary>
 		[Serializable]
 		public enum UpdateProcessState
@@ -70,7 +68,7 @@ namespace NAppUpdate.Framework
 			Prepared,
 			AfterRestart,
 			AppliedSuccessfully,
-			RollbackRequired,
+			RollbackRequired
 		}
 
 		internal readonly string ApplicationPath;
@@ -79,7 +77,7 @@ namespace NAppUpdate.Framework
 
 		internal string BaseUrl { get; set; }
 		internal IList<IUpdateTask> UpdatesToApply { get; private set; }
-		public int UpdatesAvailable { get { return UpdatesToApply == null ? 0 : UpdatesToApply.Count; } }
+		public int UpdatesAvailable => UpdatesToApply == null ? 0 : UpdatesToApply.Count;
 		public UpdateProcessState State { get; private set; }
 
 		public IUpdateSource UpdateSource { get; set; }
@@ -87,16 +85,22 @@ namespace NAppUpdate.Framework
 
 		public Logger Logger { get; private set; }
 
-		public IEnumerable<IUpdateTask> Tasks { get { return UpdatesToApply; } }
+		public IEnumerable<IUpdateTask> Tasks => UpdatesToApply;
 
 		internal volatile bool ShouldStop;
 
-		public bool IsWorking { get { return _isWorking; } private set { _isWorking = value; } }
+		public bool IsWorking
+		{
+			get => _isWorking;
+			private set => _isWorking = value;
+		}
+
 		private volatile bool _isWorking;
 
 		#region Progress reporting
 
 		public event ReportProgressDelegate ReportProgress;
+
 		private void TaskProgressCallback(UpdateProgressInfo currentStatus, IUpdateTask task)
 		{
 			if (ReportProgress == null) return;
@@ -105,8 +109,9 @@ namespace NAppUpdate.Framework
 			currentStatus.TaskId = UpdatesToApply.IndexOf(task) + 1;
 
 			//This was an assumed int, which meant we never reached 100% with an odd number of tasks
-			float taskPerc = 100F / UpdatesToApply.Count;
-			currentStatus.Percentage = (int)Math.Round((currentStatus.Percentage * taskPerc / 100) + (currentStatus.TaskId - 1) * taskPerc);
+			var taskPerc = 100F / UpdatesToApply.Count;
+			currentStatus.Percentage =
+				(int) Math.Round(currentStatus.Percentage * taskPerc / 100 + (currentStatus.TaskId - 1) * taskPerc);
 
 			ReportProgress(currentStatus);
 		}
@@ -116,29 +121,21 @@ namespace NAppUpdate.Framework
 		#region Step 1 - Check for updates
 
 		/// <summary>
-		/// Check for updates synchronously
+		///     Check for updates synchronously
 		/// </summary>
 		public void CheckForUpdates()
 		{
 			if (IsWorking)
-			{
 				throw new InvalidOperationException("Another update process is already in progress");
-			}
-			else if (UpdateFeedReader == null)
-			{
+			if (UpdateFeedReader == null)
 				throw new InvalidOperationException("UpdateFeedReader must be set before calling CheckForUpdates()");
-			}
-			else if (UpdateSource == null)
-			{
+			if (UpdateSource == null)
 				throw new InvalidOperationException("UpdateSource must be set before calling CheckForUpdates()");
-			}
 
 			using (WorkScope.New(isWorking => IsWorking = isWorking))
 			{
 				if (State != UpdateProcessState.NotChecked)
-				{
 					throw new InvalidOperationException("Already checked for updates; to reset the current state call CleanUp()");
-				}
 
 				lock (UpdatesToApply)
 				{
@@ -159,11 +156,11 @@ namespace NAppUpdate.Framework
 		}
 
 		/// <summary>
-		/// Check for updates asynchronously
+		///     Check for updates asynchronously
 		/// </summary>
 		/// <param name="callback">Callback function to call when done; can be null</param>
 		/// <param name="state">Allows the caller to preserve state; can be null</param>
-		public IAsyncResult BeginCheckForUpdates(AsyncCallback callback, Object state)
+		public IAsyncResult BeginCheckForUpdates(AsyncCallback callback, object state)
 		{
 			// Create IAsyncResult object identifying the 
 			// asynchronous operation
@@ -185,17 +182,17 @@ namespace NAppUpdate.Framework
 				}
 			}, ar);
 
-			return ar;  // Return the IAsyncResult to the caller
+			return ar; // Return the IAsyncResult to the caller
 		}
 
 		/// <summary>
-		/// Block until previously-called CheckForUpdates complete
+		///     Block until previously-called CheckForUpdates complete
 		/// </summary>
 		/// <param name="asyncResult"></param>
 		public void EndCheckForUpdates(IAsyncResult asyncResult)
 		{
 			// Wait for operation to complete, then return or throw exception
-			var ar = (UpdateProcessAsyncResult)asyncResult;
+			var ar = (UpdateProcessAsyncResult) asyncResult;
 			ar.EndInvoke();
 		}
 
@@ -204,7 +201,7 @@ namespace NAppUpdate.Framework
 		#region Step 2 - Prepare to execute update tasks
 
 		/// <summary>
-		/// Prepare updates synchronously
+		///     Prepare updates synchronously
 		/// </summary>
 		public void PrepareUpdates()
 		{
@@ -259,11 +256,11 @@ namespace NAppUpdate.Framework
 		}
 
 		/// <summary>
-		/// Prepare updates asynchronously
+		///     Prepare updates asynchronously
 		/// </summary>
 		/// <param name="callback">Callback function to call when done; can be null</param>
 		/// <param name="state">Allows the caller to preserve state; can be null</param>
-		public IAsyncResult BeginPrepareUpdates(AsyncCallback callback, Object state)
+		public IAsyncResult BeginPrepareUpdates(AsyncCallback callback, object state)
 		{
 			// Create IAsyncResult object identifying the 
 			// asynchronous operation
@@ -285,17 +282,17 @@ namespace NAppUpdate.Framework
 				}
 			}, ar);
 
-			return ar;  // Return the IAsyncResult to the caller
+			return ar; // Return the IAsyncResult to the caller
 		}
 
 		/// <summary>
-		/// Block until previously-called PrepareUpdates complete
+		///     Block until previously-called PrepareUpdates complete
 		/// </summary>
 		/// <param name="asyncResult"></param>
 		public void EndPrepareUpdates(IAsyncResult asyncResult)
 		{
 			// Wait for operation to complete, then return or throw exception
-			var ar = (UpdateProcessAsyncResult)asyncResult;
+			var ar = (UpdateProcessAsyncResult) asyncResult;
 			ar.EndInvoke();
 		}
 
@@ -304,7 +301,7 @@ namespace NAppUpdate.Framework
 		#region Step 3 - Apply updates
 
 		/// <summary>
-		/// Starts the updater executable and sends update data to it, and relaunch the caller application as soon as its done
+		///     Starts the updater executable and sends update data to it, and relaunch the caller application as soon as its done
 		/// </summary>
 		/// <returns>True if successful (unless a restart was required</returns>
 		public void ApplyUpdates()
@@ -313,7 +310,7 @@ namespace NAppUpdate.Framework
 		}
 
 		/// <summary>
-		/// Starts the updater executable and sends update data to it
+		///     Starts the updater executable and sends update data to it
 		/// </summary>
 		/// <param name="relaunchApplication">true if relaunching the caller application is required; false otherwise</param>
 		/// <returns>True if successful (unless a restart was required</returns>
@@ -323,7 +320,7 @@ namespace NAppUpdate.Framework
 		}
 
 		/// <summary>
-		/// Starts the updater executable and sends update data to it
+		///     Starts the updater executable and sends update data to it
 		/// </summary>
 		/// <param name="relaunchApplication">true if relaunching the caller application is required; false otherwise</param>
 		/// <param name="updaterDoLogging">true if the updater writes to a log file; false otherwise</param>
@@ -338,7 +335,7 @@ namespace NAppUpdate.Framework
 			{
 				using (WorkScope.New(isWorking => IsWorking = isWorking))
 				{
-					bool revertToDefaultBackupPath = true;
+					var revertToDefaultBackupPath = true;
 
 					// Set current directory the the application directory
 					// this prevents the updater from writing to e.g. c:\windows\system32
@@ -348,7 +345,7 @@ namespace NAppUpdate.Framework
 					// ReSharper restore AssignNullToNotNullAttribute
 
 					// Make sure the current backup folder is accessible for writing from this process
-					string backupParentPath = Path.GetDirectoryName(Config.BackupFolder) ?? string.Empty;
+					var backupParentPath = Path.GetDirectoryName(Config.BackupFolder) ?? string.Empty;
 					if (Directory.Exists(backupParentPath) && PermissionsCheck.HaveWritePermissionsForFolder(backupParentPath))
 					{
 						// Remove old backup folder, in case this same folder was used previously,
@@ -359,9 +356,7 @@ namespace NAppUpdate.Framework
 								FileSystem.DeleteDirectory(Config.BackupFolder);
 							revertToDefaultBackupPath = false;
 						}
-						catch (UnauthorizedAccessException)
-						{
-						}
+						catch (UnauthorizedAccessException) { }
 
 						// Attempt to (re-)create the backup folder
 						try
@@ -400,7 +395,7 @@ namespace NAppUpdate.Framework
 					State = UpdateProcessState.RollbackRequired;
 					foreach (var task in UpdatesToApply)
 					{
-						IUpdateTask t = task;
+						var t = task;
 						task.ProgressDelegate += status => TaskProgressCallback(status, t);
 
 						try
@@ -415,7 +410,7 @@ namespace NAppUpdate.Framework
 						}
 
 						if (task.ExecutionStatus == TaskExecutionStatus.RequiresAppRestart
-							|| task.ExecutionStatus == TaskExecutionStatus.RequiresPrivilegedAppRestart)
+						    || task.ExecutionStatus == TaskExecutionStatus.RequiresPrivilegedAppRestart)
 						{
 							// Record that we have cold updates to run, and if required to run any of them privileged
 							runPrivileged = runPrivileged || task.ExecutionStatus == TaskExecutionStatus.RequiresPrivilegedAppRestart;
@@ -433,27 +428,27 @@ namespace NAppUpdate.Framework
 					if (hasColdUpdates)
 					{
 						var dto = new NauIpc.NauDto
-									{
-										Configs = Instance.Config,
-										Tasks = Instance.UpdatesToApply,
-										AppPath = ApplicationPath,
-										WorkingDirectory = Environment.CurrentDirectory,
-										RelaunchApplication = relaunchApplication,
-										LogItems = Logger.LogItems,
-									};
+						{
+							Configs = Instance.Config,
+							Tasks = Instance.UpdatesToApply,
+							AppPath = ApplicationPath,
+							WorkingDirectory = Environment.CurrentDirectory,
+							RelaunchApplication = relaunchApplication,
+							LogItems = Logger.LogItems
+						};
 
 						NauIpc.ExtractUpdaterFromResource(Config.TempFolder, Instance.Config.UpdateExecutableName);
 
 						var info = new ProcessStartInfo
-									{
-										UseShellExecute = true,
-										WorkingDirectory = Environment.CurrentDirectory,
-										FileName = Path.Combine(Config.TempFolder, Instance.Config.UpdateExecutableName),
-										Arguments =
-											string.Format(@"""{0}"" {1} {2}", Config.UpdateProcessName,
-														  updaterShowConsole ? "-showConsole" : string.Empty,
-														  updaterDoLogging ? "-log" : string.Empty),
-									};
+						{
+							UseShellExecute = true,
+							WorkingDirectory = Environment.CurrentDirectory,
+							FileName = Path.Combine(Config.TempFolder, Instance.Config.UpdateExecutableName),
+							Arguments =
+								string.Format(@"""{0}"" {1} {2}", Config.UpdateProcessName,
+									updaterShowConsole ? "-showConsole" : string.Empty,
+									updaterDoLogging ? "-log" : string.Empty)
+						};
 
 						if (!updaterShowConsole)
 						{
@@ -463,9 +458,7 @@ namespace NAppUpdate.Framework
 
 						// If we can't write to the destination folder, then lets try elevating priviledges.
 						if (runPrivileged || !PermissionsCheck.HaveWritePermissionsForFolder(Environment.CurrentDirectory))
-						{
 							info.Verb = "runas";
-						}
 
 						bool createdNew;
 						_shutdownMutex = new Mutex(true, Config.UpdateProcessName + "Mutex", out createdNew);
@@ -493,18 +486,14 @@ namespace NAppUpdate.Framework
 		public void ReinstateIfRestarted()
 		{
 			if (!IsAfterRestart())
-			{
 				return;
-			}
 
 			lock (UpdatesToApply)
 			{
-				NauIpc.NauDto dto = NauIpc.ReadDto(Config.UpdateProcessName);
+				var dto = NauIpc.ReadDto(Config.UpdateProcessName);
 
 				if (dto == null)
-				{
 					return;
-				}
 
 				Config = dto.Configs;
 				UpdatesToApply = dto.Tasks;
@@ -514,7 +503,7 @@ namespace NAppUpdate.Framework
 		}
 
 		/// <summary>
-		/// Rollback executed updates in case of an update failure
+		///     Rollback executed updates in case of an update failure
 		/// </summary>
 		public void RollbackUpdates()
 		{
@@ -523,16 +512,15 @@ namespace NAppUpdate.Framework
 			lock (UpdatesToApply)
 			{
 				foreach (var task in UpdatesToApply)
-				{
 					task.Rollback();
-				}
 
 				State = UpdateProcessState.NotChecked;
 			}
 		}
 
 		/// <summary>
-		/// Abort update process, cancelling whatever background process currently taking place without waiting for it to complete
+		///     Abort update process, cancelling whatever background process currently taking place without waiting for it to
+		///     complete
 		/// </summary>
 		public void Abort()
 		{
@@ -540,7 +528,7 @@ namespace NAppUpdate.Framework
 		}
 
 		/// <summary>
-		/// Abort update process, cancelling whatever background process currently taking place
+		///     Abort update process, cancelling whatever background process currently taking place
 		/// </summary>
 		/// <param name="waitForTermination">If true, blocks the calling thread until the current process terminates</param>
 		public void Abort(bool waitForTermination)
@@ -549,7 +537,7 @@ namespace NAppUpdate.Framework
 		}
 
 		/// <summary>
-		/// Delete the temp folder as a whole and fail silently
+		///     Delete the temp folder as a whole and fail silently
 		/// </summary>
 		public void CleanUp()
 		{
@@ -580,13 +568,9 @@ namespace NAppUpdate.Framework
 
 		private bool IsAfterRestart()
 		{
-			foreach (string arg in Environment.GetCommandLineArgs())
-			{
+			foreach (var arg in Environment.GetCommandLineArgs())
 				if (arg == "-nappupdate-afterrestart")
-				{
 					return true;
-				}
-			}
 
 			return false;
 		}

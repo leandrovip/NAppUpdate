@@ -1,16 +1,19 @@
 using System;
-using System.ComponentModel;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Reflection;
+using System.Threading;
 using System.Windows;
-using System.Windows.Threading;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using NAppUpdate.Framework;
 using NAppUpdate.Framework.Common;
+using Timer = System.Timers.Timer;
 
 namespace NAppUpdate.SampleApp
 {
 	/// <summary>
-	/// Interaction logic for UpdateWindow.xaml
+	///     Interaction logic for UpdateWindow.xaml
 	/// </summary>
 	public partial class UpdateWindow : Window
 	{
@@ -25,23 +28,23 @@ namespace NAppUpdate.SampleApp
 			_helper = new UpdateTaskHelper();
 			InitializeComponent();
 
-			var iconStream = System.Reflection.Assembly.GetExecutingAssembly().GetManifestResourceStream("NAppUpdate.Framework.updateicon.ico");
+			var iconStream = Assembly.GetExecutingAssembly().GetManifestResourceStream("NAppUpdate.Framework.updateicon.ico");
 			if (iconStream != null)
-				this.Icon = new IconBitmapDecoder(iconStream, BitmapCreateOptions.None, BitmapCacheOption.Default).Frames[0];
-			this.DataContext = _helper;
+				Icon = new IconBitmapDecoder(iconStream, BitmapCreateOptions.None, BitmapCacheOption.Default).Frames[0];
+			DataContext = _helper;
 		}
 
 		private void InstallNow_Click(object sender, RoutedEventArgs e)
 		{
 			ShowThrobber();
 			// dummy time delay for demonstration purposes
-			var t = new System.Timers.Timer(2000) { AutoReset = false };
+			var t = new Timer(2000) {AutoReset = false};
 			t.Start();
-			while (t.Enabled) { DoEvents(); }
+			while (t.Enabled) DoEvents();
 
 			_updateManager.BeginPrepareUpdates(asyncResult =>
 			{
-				((UpdateProcessAsyncResult)asyncResult).EndInvoke();
+				((UpdateProcessAsyncResult) asyncResult).EndInvoke();
 
 				// ApplyUpdates is a synchronous method by design. Make sure to save all user work before calling
 				// it as it might restart your application
@@ -51,13 +54,9 @@ namespace NAppUpdate.SampleApp
 					_updateManager.ApplyUpdates(true);
 
 					if (Dispatcher.CheckAccess())
-					{
 						Close();
-					}
 					else
-					{
 						Dispatcher.Invoke(new Action(Close));
-					}
 				}
 				catch
 				{
@@ -70,19 +69,19 @@ namespace NAppUpdate.SampleApp
 			}, null);
 		}
 
-		static void DoEvents()
+		private static void DoEvents()
 		{
 			var frame = new DispatcherFrame(true);
 			Dispatcher.CurrentDispatcher.BeginInvoke
-				(
-					DispatcherPriority.Background,
-					(System.Threading.SendOrPostCallback)delegate(object arg)
-						{
-							var f = arg as DispatcherFrame;
-							if (f != null) f.Continue = false;
-						},
-					frame
-				);
+			(
+				DispatcherPriority.Background,
+				(SendOrPostCallback) delegate(object arg)
+				{
+					var f = arg as DispatcherFrame;
+					if (f != null) f.Continue = false;
+				},
+				frame
+			);
 			Dispatcher.PushFrame(frame);
 		}
 
@@ -106,11 +105,10 @@ namespace NAppUpdate.SampleApp
 
 		public void InvokePropertyChanged(string propertyName)
 		{
-			PropertyChangedEventHandler handler = PropertyChanged;
+			var handler = PropertyChanged;
 			if (handler != null) handler(this, new PropertyChangedEventArgs(propertyName));
 		}
 
 		#endregion
-
 	}
 }

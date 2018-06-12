@@ -1,22 +1,19 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NAppUpdate.Framework.Conditions;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using NAppUpdate.Framework.Tasks;
 
 namespace NAppUpdate.Tests.Conditions
 {
-	internal class MockCondition : NAppUpdate.Framework.Conditions.IUpdateCondition
+	internal class MockCondition : IUpdateCondition
 	{
-		private bool _isMet;
+		private readonly bool _isMet;
 
 		internal MockCondition(bool isMet)
 		{
 			_isMet = isMet;
 		}
 
-		public bool IsMet(Framework.Tasks.IUpdateTask task)
+		public bool IsMet(IUpdateTask task)
 		{
 			return _isMet;
 		}
@@ -28,12 +25,12 @@ namespace NAppUpdate.Tests.Conditions
 		[TestMethod]
 		public void ShortCircuitOR()
 		{
-			BooleanCondition bc = new BooleanCondition();
+			var bc = new BooleanCondition();
 			bc.AddCondition(new MockCondition(true), BooleanCondition.ConditionType.OR);
 			bc.AddCondition(new MockCondition(true), BooleanCondition.ConditionType.OR);
 			bc.AddCondition(new MockCondition(false), BooleanCondition.ConditionType.OR);
 
-			bool isMet = bc.IsMet(null);
+			var isMet = bc.IsMet(null);
 
 			Assert.IsTrue(isMet, "Expected the second or to short circuit the condition list");
 		}
@@ -41,11 +38,11 @@ namespace NAppUpdate.Tests.Conditions
 		[TestMethod]
 		public void MultipleAND()
 		{
-			BooleanCondition bc = new BooleanCondition();
+			var bc = new BooleanCondition();
 			bc.AddCondition(new MockCondition(true), BooleanCondition.ConditionType.AND);
 			bc.AddCondition(new MockCondition(true), BooleanCondition.ConditionType.AND);
 
-			bool isMet = bc.IsMet(null);
+			var isMet = bc.IsMet(null);
 
 			Assert.IsTrue(isMet);
 		}
@@ -53,11 +50,11 @@ namespace NAppUpdate.Tests.Conditions
 		[TestMethod]
 		public void MultipleANDFail()
 		{
-			BooleanCondition bc = new BooleanCondition();
+			var bc = new BooleanCondition();
 			bc.AddCondition(new MockCondition(false), BooleanCondition.ConditionType.AND);
 			bc.AddCondition(new MockCondition(true), BooleanCondition.ConditionType.AND);
 
-			bool isMet = bc.IsMet(null);
+			var isMet = bc.IsMet(null);
 
 			Assert.IsFalse(isMet);
 		}
@@ -65,11 +62,11 @@ namespace NAppUpdate.Tests.Conditions
 		[TestMethod]
 		public void MultipleANDFail2()
 		{
-			BooleanCondition bc = new BooleanCondition();
+			var bc = new BooleanCondition();
 			bc.AddCondition(new MockCondition(true), BooleanCondition.ConditionType.AND);
 			bc.AddCondition(new MockCondition(false), BooleanCondition.ConditionType.AND);
 
-			bool isMet = bc.IsMet(null);
+			var isMet = bc.IsMet(null);
 
 			Assert.IsFalse(isMet);
 		}
@@ -77,12 +74,12 @@ namespace NAppUpdate.Tests.Conditions
 		[TestMethod]
 		public void LastORPass()
 		{
-			BooleanCondition bc = new BooleanCondition();
+			var bc = new BooleanCondition();
 			bc.AddCondition(new MockCondition(false), BooleanCondition.ConditionType.AND);
 			bc.AddCondition(new MockCondition(false), BooleanCondition.ConditionType.AND);
 			bc.AddCondition(new MockCondition(true), BooleanCondition.ConditionType.OR);
 
-			bool isMet = bc.IsMet(null);
+			var isMet = bc.IsMet(null);
 
 			Assert.IsTrue(isMet);
 		}
@@ -90,12 +87,12 @@ namespace NAppUpdate.Tests.Conditions
 		[TestMethod]
 		public void MiddleORFail()
 		{
-			BooleanCondition bc = new BooleanCondition();
+			var bc = new BooleanCondition();
 			bc.AddCondition(new MockCondition(false), BooleanCondition.ConditionType.AND);
 			bc.AddCondition(new MockCondition(true), BooleanCondition.ConditionType.OR);
 			bc.AddCondition(new MockCondition(false), BooleanCondition.ConditionType.AND);
 
-			bool isMet = bc.IsMet(null);
+			var isMet = bc.IsMet(null);
 
 			Assert.IsFalse(isMet);
 		}
@@ -103,10 +100,10 @@ namespace NAppUpdate.Tests.Conditions
 		[TestMethod]
 		public void Not()
 		{
-			BooleanCondition bc = new BooleanCondition();
+			var bc = new BooleanCondition();
 			bc.AddCondition(new MockCondition(false), BooleanCondition.ConditionType.AND | BooleanCondition.ConditionType.NOT);
 
-			bool isMet = bc.IsMet(null);
+			var isMet = bc.IsMet(null);
 
 			Assert.IsTrue(isMet);
 		}

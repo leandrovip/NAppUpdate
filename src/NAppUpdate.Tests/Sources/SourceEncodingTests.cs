@@ -1,18 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using NAppUpdate.Framework;
-using NAppUpdate.Framework.Sources;
-using NAppUpdate.Framework.Conditions;
-using NAppUpdate.Framework.Tasks;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using NAppUpdate.Framework.FeedReaders;
+using NAppUpdate.Framework.Sources;
 
 namespace NAppUpdate.Tests.Sources
 {
 	/// <summary>
-	/// Tests for different source file feed encodings: UTF-8 UTF-16LE UTF-16BE ANSI
+	///     Tests for different source file feed encodings: UTF-8 UTF-16LE UTF-16BE ANSI
 	/// </summary>
 	[TestClass]
 	public class SourceEncodingTests
@@ -54,7 +47,7 @@ namespace NAppUpdate.Tests.Sources
 
 		[TestMethod]
 		public void ReadANSIFile()
-			{
+		{
 			ReadUpdateFeed(new UncSource(@"..\..\Sources\TestFeedXML.ansi.xml", null));
 		}
 	}

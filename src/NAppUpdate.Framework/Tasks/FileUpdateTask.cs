@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Threading;
 using NAppUpdate.Framework.Common;
+using NAppUpdate.Framework.Sources;
 using NAppUpdate.Framework.Utils;
 
 namespace NAppUpdate.Framework.Tasks
@@ -28,11 +29,12 @@ namespace NAppUpdate.Framework.Tasks
 
 		private string _destinationFile, _backupFile, _tempFile;
 
-		public override void Prepare(Sources.IUpdateSource source)
+		public override void Prepare(IUpdateSource source)
 		{
 			if (string.IsNullOrEmpty(LocalPath))
 			{
-				UpdateManager.Instance.Logger.Log(Logger.SeverityLevel.Warning, "FileUpdateTask: LocalPath is empty, task is a noop");
+				UpdateManager.Instance.Logger.Log(Logger.SeverityLevel.Warning,
+					"FileUpdateTask: LocalPath is empty, task is a noop");
 				return; // Errorneous case, but there's nothing to prepare to, and by default we prefer a noop over an error
 			}
 
@@ -44,10 +46,11 @@ namespace NAppUpdate.Framework.Tasks
 
 			_tempFile = null;
 
-			string baseUrl = UpdateManager.Instance.BaseUrl;
-			string tempFileLocal = Path.Combine(UpdateManager.Instance.Config.TempFolder, Guid.NewGuid().ToString());
+			var baseUrl = UpdateManager.Instance.BaseUrl;
+			var tempFileLocal = Path.Combine(UpdateManager.Instance.Config.TempFolder, Guid.NewGuid().ToString());
 
-			UpdateManager.Instance.Logger.Log("FileUpdateTask: Downloading {0} with BaseUrl of {1} to {2}", fileName, baseUrl, tempFileLocal);
+			UpdateManager.Instance.Logger.Log("FileUpdateTask: Downloading {0} with BaseUrl of {1} to {2}", fileName, baseUrl,
+				tempFileLocal);
 
 			if (!source.GetData(fileName, baseUrl, OnProgress, ref tempFileLocal))
 				throw new UpdateProcessFailedException("FileUpdateTask: Failed to get file from source");
@@ -58,9 +61,10 @@ namespace NAppUpdate.Framework.Tasks
 
 			if (!string.IsNullOrEmpty(Sha256Checksum))
 			{
-				string checksum = FileChecksum.GetSHA256Checksum(_tempFile);
+				var checksum = FileChecksum.GetSHA256Checksum(_tempFile);
 				if (!checksum.Equals(Sha256Checksum))
-					throw new UpdateProcessFailedException(string.Format("FileUpdateTask: Checksums do not match; expected {0} but got {1}", Sha256Checksum, checksum));
+					throw new UpdateProcessFailedException(
+						string.Format("FileUpdateTask: Checksums do not match; expected {0} but got {1}", Sha256Checksum, checksum));
 			}
 
 			_destinationFile = Path.Combine(Path.GetDirectoryName(UpdateManager.Instance.ApplicationPath), LocalPath);
@@ -71,23 +75,24 @@ namespace NAppUpdate.Framework.Tasks
 		{
 			if (string.IsNullOrEmpty(LocalPath))
 			{
-				UpdateManager.Instance.Logger.Log(Logger.SeverityLevel.Warning, "FileUpdateTask: LocalPath is empty, task is a noop");
-				return TaskExecutionStatus.Successful; // Errorneous case, but there's nothing to prepare to, and by default we prefer a noop over an error
+				UpdateManager.Instance.Logger.Log(Logger.SeverityLevel.Warning,
+					"FileUpdateTask: LocalPath is empty, task is a noop");
+				return
+					TaskExecutionStatus
+						.Successful; // Errorneous case, but there's nothing to prepare to, and by default we prefer a noop over an error
 			}
 
 			var dirName = Path.GetDirectoryName(_destinationFile);
 			if (!Directory.Exists(dirName))
-			{
-				Utils.FileSystem.CreateDirectoryStructure(dirName, false);
-			}
+				FileSystem.CreateDirectoryStructure(dirName, false);
 
 			// Create a backup copy if target exists
 			if (_backupFile == null && File.Exists(_destinationFile))
 			{
 				if (!Directory.Exists(Path.GetDirectoryName(Path.Combine(UpdateManager.Instance.Config.BackupFolder, LocalPath))))
 				{
-					string backupPath = Path.GetDirectoryName(Path.Combine(UpdateManager.Instance.Config.BackupFolder, LocalPath));
-					Utils.FileSystem.CreateDirectoryStructure(backupPath, false);
+					var backupPath = Path.GetDirectoryName(Path.Combine(UpdateManager.Instance.Config.BackupFolder, LocalPath));
+					FileSystem.CreateDirectoryStructure(backupPath, false);
 				}
 				_backupFile = Path.Combine(UpdateManager.Instance.Config.BackupFolder, LocalPath);
 				File.Copy(_destinationFile, _backupFile, true);
@@ -104,7 +109,8 @@ namespace NAppUpdate.Framework.Tasks
 					{
 						if (coldRun)
 						{
-							UpdateManager.Instance.Logger.Log(Logger.SeverityLevel.Warning, "Don't have permissions to touch {0}", _destinationFile);
+							UpdateManager.Instance.Logger.Log(Logger.SeverityLevel.Warning, "Don't have permissions to touch {0}",
+								_destinationFile);
 							File.Delete(_destinationFile); // get the original exception from the system
 						}
 						CanHotSwap = false;
@@ -140,10 +146,8 @@ namespace NAppUpdate.Framework.Tasks
 				return TaskExecutionStatus.Successful;
 
 			// Otherwise, figure out what restart method to use
-			if (File.Exists(_destinationFile) && !Utils.PermissionsCheck.HaveWritePermissionsForFileOrFolder(_destinationFile))
-			{
+			if (File.Exists(_destinationFile) && !PermissionsCheck.HaveWritePermissionsForFileOrFolder(_destinationFile))
 				return TaskExecutionStatus.RequiresPrivilegedAppRestart;
-			}
 			return TaskExecutionStatus.RequiresAppRestart;
 		}
 
@@ -159,21 +163,20 @@ namespace NAppUpdate.Framework.Tasks
 
 			return true;
 		}
+
 		/// <summary>
-		/// To mitigate problems with the files being locked even though the application mutex has been released.
-		/// https://github.com/synhershko/NAppUpdate/issues/35
+		///     To mitigate problems with the files being locked even though the application mutex has been released.
+		///     https://github.com/synhershko/NAppUpdate/issues/35
 		/// </summary>
 		private void FileLockWait()
 		{
-			int attempt = 0;
+			var attempt = 0;
 			while (FileSystem.IsFileLocked(new FileInfo(_destinationFile)))
 			{
 				Thread.Sleep(500);
 				attempt++;
 				if (attempt == 10)
-				{
 					throw new UpdateProcessFailedException("Failed to update, the file is locked: " + _destinationFile);
-				}
 			}
 		}
 	}

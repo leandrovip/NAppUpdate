@@ -22,7 +22,9 @@ namespace NAppUpdate.Framework.Conditions
 
 		public bool IsMet(IUpdateTask task)
 		{
-			var localPath = !string.IsNullOrEmpty(LocalPath) ? LocalPath : Utils.Reflection.GetNauAttribute(task, "LocalPath") as string;
+			var localPath = !string.IsNullOrEmpty(LocalPath)
+				? LocalPath
+				: Reflection.GetNauAttribute(task, "LocalPath") as string;
 
 			// local path is invalid, we can't check for anything so we will return as if the condition was met
 			if (string.IsNullOrEmpty(localPath))

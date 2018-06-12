@@ -1,37 +1,22 @@
 ﻿using System;
+using System.Diagnostics;
 
 namespace NAppUpdate.Framework.Common
 {
-	[AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = false)]
+	[AttributeUsage(AttributeTargets.Property)]
 	public class NauFieldAttribute : Attribute
 	{
-		private readonly string _alias;
-		private readonly string _description;
-		private readonly bool _isRequired;
-
 		public NauFieldAttribute(string alias, string description, bool isRequired)
 		{
-			this._alias = alias;
-			this._description = description;
-			this._isRequired = isRequired;
+			Alias = alias;
+			Description = description;
+			IsRequired = isRequired;
 		}
 
-		public string Alias
-		{
-			[System.Diagnostics.DebuggerStepThrough]
-			get { return this._alias; }
-		}
+		public string Alias { [DebuggerStepThrough] get; }
 
-		public string Description
-		{
-			[System.Diagnostics.DebuggerStepThrough]
-			get { return this._description; }
-		}
+		public string Description { [DebuggerStepThrough] get; }
 
-		public bool IsRequired
-		{
-			[System.Diagnostics.DebuggerStepThrough]
-			get { return this._isRequired; }
-		}
+		public bool IsRequired { [DebuggerStepThrough] get; }
 	}
 }

@@ -17,9 +17,10 @@ namespace WinFormsSampleApp
 			InitializeComponent();
 
 			// UpdateManager initialization
-			UpdateManager updManager = UpdateManager.Instance;
+			var updManager = UpdateManager.Instance;
 			updManager.UpdateSource = new SimpleWebSource( /* update feed URL */);
-			updManager.Config.TempFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "NAppUpdateWinFormsSample\\Updates");
+			updManager.Config.TempFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+				"NAppUpdateWinFormsSample\\Updates");
 			// If you don't call this method, the updater.exe will continually attempt to connect the named pipe and get stuck.
 			// Therefore you should always implement this method call.
 			updManager.ReinstateIfRestarted();
@@ -49,22 +50,22 @@ namespace WinFormsSampleApp
 			// it to UpdateManager using MemorySource.
 			// Without passing this IUpdateSource object to CheckForUpdates, it will attempt to retrieve an
 			// update feed from the feed URL specified in SimpleWebSource (which we did not provide)
-			string feedXml = File.ReadAllText("SampleUpdateFeed.xml");
+			var feedXml = File.ReadAllText("SampleUpdateFeed.xml");
 			IUpdateSource feedSource = new MemorySource(feedXml);
 			CheckForUpdates(feedSource);
 		}
 
 		private void btnCheckForUpdatesCustom_Click(object sender, EventArgs e)
 		{
-			string feedUrl = InputBox("Please enter a Url for a valid NauXml feed", "Feed Url required", "");
+			var feedUrl = InputBox("Please enter a Url for a valid NauXml feed", "Feed Url required", "");
 
 			if (string.IsNullOrEmpty(feedUrl)) return;
 
-			IUpdateSource source = UpdateManager.Instance.UpdateSource;
+			var source = UpdateManager.Instance.UpdateSource;
 			if (source is SimpleWebSource)
 			{
 				// All we need to do is set the feed url and we are all set, no need to create new objects etc
-				((SimpleWebSource)source).FeedUrl = feedUrl;
+				((SimpleWebSource) source).FeedUrl = feedUrl;
 				CheckForUpdates(source);
 			}
 			else
@@ -80,13 +81,13 @@ namespace WinFormsSampleApp
 		private void CheckForUpdates(IUpdateSource source)
 		{
 			// Get a local pointer to the UpdateManager instance
-			UpdateManager updManager = UpdateManager.Instance;
+			var updManager = UpdateManager.Instance;
 			updManager.UpdateSource = source;
 
 			// Only check for updates if we haven't done so already
 			if (updManager.State != UpdateManager.UpdateProcessState.NotChecked)
 			{
-				MessageBox.Show("Update process has already initialized; current state: " + updManager.State.ToString());
+				MessageBox.Show("Update process has already initialized; current state: " + updManager.State);
 				return;
 			}
 
@@ -104,10 +105,12 @@ namespace WinFormsSampleApp
 					// This indicates a feed or network error; ex will contain all the info necessary
 					// to deal with that
 				}
-				else MessageBox.Show(ex.ToString());
+				else
+				{
+					MessageBox.Show(ex.ToString());
+				}
 				return;
 			}
-
 
 			if (updManager.UpdatesAvailable == 0)
 			{
@@ -115,18 +118,21 @@ namespace WinFormsSampleApp
 				return;
 			}
 
-			DialogResult dr = MessageBox.Show(string.Format("Updates are available to your software ({0} total). Do you want to download and prepare them now? You can always do this at a later time.", updManager.UpdatesAvailable), "Software updates available", MessageBoxButtons.YesNo);
+			var dr = MessageBox.Show(
+				string.Format(
+					"Updates are available to your software ({0} total). Do you want to download and prepare them now? You can always do this at a later time.",
+					updManager.UpdatesAvailable), "Software updates available", MessageBoxButtons.YesNo);
 
 			if (dr == DialogResult.Yes) updManager.BeginPrepareUpdates(OnPrepareUpdatesCompleted, null);
 		}
 
 		private void btnPrepareUpdates_Click(object sender, EventArgs e)
 		{
-			UpdateManager updManager = UpdateManager.Instance;
+			var updManager = UpdateManager.Instance;
 
 			if (updManager.State != UpdateManager.UpdateProcessState.Checked)
 			{
-				MessageBox.Show("Cannot prepare updates at the current state: " + updManager.State.ToString());
+				MessageBox.Show("Cannot prepare updates at the current state: " + updManager.State);
 				return;
 			}
 
@@ -141,11 +147,12 @@ namespace WinFormsSampleApp
 
 		private void btnInstallUpdates_Click(object sender, EventArgs e)
 		{
-			UpdateManager updManager = UpdateManager.Instance;
+			var updManager = UpdateManager.Instance;
 
 			if (updManager.State != UpdateManager.UpdateProcessState.Prepared)
 			{
-				MessageBox.Show("Cannot install updates at the current state, they need to be prepared first. Current state is " + updManager.State.ToString());
+				MessageBox.Show("Cannot install updates at the current state, they need to be prepared first. Current state is " +
+				                updManager.State);
 				return;
 			}
 
@@ -156,18 +163,20 @@ namespace WinFormsSampleApp
 		{
 			try
 			{
-				((UpdateProcessAsyncResult)asyncResult).EndInvoke();
+				((UpdateProcessAsyncResult) asyncResult).EndInvoke();
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(string.Format("Updates preperation failed. Check the feed and try again.{0}{1}", Environment.NewLine, ex));
+				MessageBox.Show(string.Format("Updates preperation failed. Check the feed and try again.{0}{1}",
+					Environment.NewLine, ex));
 				return;
 			}
 
 			// Get a local pointer to the UpdateManager instance
-			UpdateManager updManager = UpdateManager.Instance;
+			var updManager = UpdateManager.Instance;
 
-			DialogResult dr = MessageBox.Show("Updates are ready to install. Do you wish to install them now?", "Software updates ready", MessageBoxButtons.YesNo);
+			var dr = MessageBox.Show("Updates are ready to install. Do you wish to install them now?", "Software updates ready",
+				MessageBoxButtons.YesNo);
 
 			if (dr != DialogResult.Yes) return;
 			// This is a synchronous method by design, make sure to save all user work before calling
@@ -218,7 +227,7 @@ namespace WinFormsSampleApp
 		{
 			if (UpdateManager.Instance.State != UpdateManager.UpdateProcessState.RollbackRequired)
 			{
-				MessageBox.Show("There is no failed update process to rollback; current state: " + UpdateManager.Instance.State.ToString());
+				MessageBox.Show("There is no failed update process to rollback; current state: " + UpdateManager.Instance.State);
 				return;
 			}
 
@@ -226,19 +235,19 @@ namespace WinFormsSampleApp
 		}
 
 		/// <summary>
-		/// Replacement for VB InputBox, returns user input string.
+		///     Replacement for VB InputBox, returns user input string.
 		/// </summary>
 		/// <returns>string</returns>
 		public static string InputBox(string prompt, string title, string defaultValue)
 		{
-			frmInputBoxDialog ib = new frmInputBoxDialog
+			var ib = new frmInputBoxDialog
 			{
 				FormPrompt = prompt,
 				FormCaption = title,
 				DefaultValue = defaultValue
 			};
 			ib.ShowDialog();
-			string s = ib.InputResponse;
+			var s = ib.InputResponse;
 			ib.Close();
 			return s;
 		}

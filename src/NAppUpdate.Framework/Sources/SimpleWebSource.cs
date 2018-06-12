@@ -1,8 +1,8 @@
 ﻿using System;
+using System.IO;
+using System.Net;
 using NAppUpdate.Framework.Common;
 using NAppUpdate.Framework.Utils;
-using System.Net;
-using System.IO;
 
 namespace NAppUpdate.Framework.Sources
 {
@@ -25,7 +25,7 @@ namespace NAppUpdate.Framework.Sources
 		#region IUpdateSource Members
 
 		/// <summary>
-		/// Speed up web request by trying to use dns to resolve ip address.  If it fails then fail early.
+		///     Speed up web request by trying to use dns to resolve ip address.  If it fails then fail early.
 		/// </summary>
 		/// <returns></returns>
 		private void TryResolvingHost()

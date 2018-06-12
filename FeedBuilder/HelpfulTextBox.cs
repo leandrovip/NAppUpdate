@@ -24,7 +24,8 @@ namespace FeedBuilder
 		private const int EM_SETCUEBANNER = 0x1501;
 
 		[DllImport("user32.dll", CharSet = CharSet.Auto)]
-		private static extern Int32 SendMessage(IntPtr hWnd, int msg, int wParam, [MarshalAs(UnmanagedType.LPWStr)] string lParam);
+		private static extern int SendMessage(IntPtr hWnd, int msg, int wParam,
+			[MarshalAs(UnmanagedType.LPWStr)] string lParam);
 
 		#endregion
 
@@ -37,7 +38,7 @@ namespace FeedBuilder
 		[RefreshProperties(RefreshProperties.None)]
 		public string HelpfulText
 		{
-			get { return _helpfulText; }
+			get => _helpfulText;
 			set
 			{
 				_helpfulText = value;
@@ -46,7 +47,7 @@ namespace FeedBuilder
 		}
 
 		/// <summary>
-		///   Actually, the system cue only works for editable (i.e. not read-only) text boxes.
+		///     Actually, the system cue only works for editable (i.e. not read-only) text boxes.
 		/// </summary>
 		/// <remarks>
 		/// </remarks>
