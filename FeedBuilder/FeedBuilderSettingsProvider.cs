@@ -26,8 +26,8 @@ namespace FeedBuilder
 			}
 			catch (Exception ex)
 			{
-				var msg = string.Format("An error occurred while saving the file: {0}{0}{1}", Environment.NewLine, ex.Message);
-				MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				var msg = string.Format("Ocorreu um erro ao salvar o arquivo: {0}{0}{1}", Environment.NewLine, ex.Message);
+				MessageBox.Show(msg, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 
@@ -42,8 +42,8 @@ namespace FeedBuilder
 			}
 			catch (Exception ex)
 			{
-				var msg = string.Format("An error occurred while loading the file: {0}{0}{1}", Environment.NewLine, ex.Message);
-				MessageBox.Show(msg, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+				var msg = string.Format("Ocorreu um erro ao carregar o arquivo: {0}{0}{1}", Environment.NewLine, ex.Message);
+				MessageBox.Show(msg, "Erro", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 

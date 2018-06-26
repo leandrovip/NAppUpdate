@@ -82,9 +82,10 @@ namespace NAppUpdate.Framework.Utils
 				onProgress(new DownloadProgressInfo
 				{
 					DownloadedInBytes = totalBytes,
+					TaskDescription = _uri.AbsoluteUri,
 					FileSizeInBytes = downloadSize,
 					Percentage = (int) (totalBytes / (float) downloadSize * 100),
-					Message = string.Format("Downloading... ({0} / {1} completed)", ToFileSizeString(totalBytes),
+					Message = string.Format("Baixando... ({0} / {1} completados)", ToFileSizeString(totalBytes),
 						ToFileSizeString(downloadSize)),
 					StillWorking = totalBytes == downloadSize
 				});

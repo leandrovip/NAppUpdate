@@ -59,6 +59,7 @@ namespace FeedBuilder
             this.ToolStripContainer1 = new System.Windows.Forms.ToolStripContainer();
             this.panFiles = new System.Windows.Forms.Panel();
             this.grpSettings = new System.Windows.Forms.GroupBox();
+            this.lblAddExtension = new System.Windows.Forms.Label();
             this.chkCleanUp = new System.Windows.Forms.CheckBox();
             this.chkCopyFiles = new System.Windows.Forms.CheckBox();
             this.lblIgnore = new System.Windows.Forms.Label();
@@ -68,18 +69,19 @@ namespace FeedBuilder
             this.chkDate = new System.Windows.Forms.CheckBox();
             this.chkSize = new System.Windows.Forms.CheckBox();
             this.chkVersion = new System.Windows.Forms.CheckBox();
-            this.txtBaseURL = new FeedBuilder.HelpfulTextBox(this.components);
             this.lblBaseURL = new System.Windows.Forms.Label();
             this.chkIgnoreVsHost = new System.Windows.Forms.CheckBox();
             this.chkIgnoreSymbols = new System.Windows.Forms.CheckBox();
             this.cmdFeedXML = new System.Windows.Forms.Button();
-            this.txtFeedXML = new FeedBuilder.HelpfulTextBox(this.components);
             this.lblFeedXML = new System.Windows.Forms.Label();
             this.cmdOutputFolder = new System.Windows.Forms.Button();
-            this.txtOutputFolder = new FeedBuilder.HelpfulTextBox(this.components);
             this.lblOutputFolder = new System.Windows.Forms.Label();
             this.txtAddExtension = new FeedBuilder.HelpfulTextBox(this.components);
-            this.lblAddExtension = new System.Windows.Forms.Label();
+            this.txtBaseURL = new FeedBuilder.HelpfulTextBox(this.components);
+            this.txtFeedXML = new FeedBuilder.HelpfulTextBox(this.components);
+            this.txtOutputFolder = new FeedBuilder.HelpfulTextBox(this.components);
+            this.chkIgnoreXml = new System.Windows.Forms.CheckBox();
+            this.chkIgnoreLog = new System.Windows.Forms.CheckBox();
             this.tsMain.SuspendLayout();
             this.ToolStripContainer1.ContentPanel.SuspendLayout();
             this.ToolStripContainer1.TopToolStripPanel.SuspendLayout();
@@ -294,6 +296,8 @@ namespace FeedBuilder
             // 
             // grpSettings
             // 
+            this.grpSettings.Controls.Add(this.chkIgnoreLog);
+            this.grpSettings.Controls.Add(this.chkIgnoreXml);
             this.grpSettings.Controls.Add(this.lblAddExtension);
             this.grpSettings.Controls.Add(this.txtAddExtension);
             this.grpSettings.Controls.Add(this.chkCleanUp);
@@ -323,6 +327,15 @@ namespace FeedBuilder
             this.grpSettings.TabIndex = 1;
             this.grpSettings.TabStop = false;
             this.grpSettings.Text = "Settings:";
+            // 
+            // lblAddExtension
+            // 
+            this.lblAddExtension.AutoSize = true;
+            this.lblAddExtension.Location = new System.Drawing.Point(433, 146);
+            this.lblAddExtension.Name = "lblAddExtension";
+            this.lblAddExtension.Size = new System.Drawing.Size(77, 13);
+            this.lblAddExtension.TabIndex = 19;
+            this.lblAddExtension.Text = "Add extension:";
             // 
             // chkCleanUp
             // 
@@ -421,17 +434,6 @@ namespace FeedBuilder
             this.chkVersion.Text = "Version";
             this.chkVersion.UseVisualStyleBackColor = true;
             // 
-            // txtBaseURL
-            // 
-            this.txtBaseURL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtBaseURL.HelpfulText = "Where you will upload the feed and update files for distribution to clients";
-            this.txtBaseURL.Location = new System.Drawing.Point(146, 86);
-            this.txtBaseURL.Margin = new System.Windows.Forms.Padding(3, 3, 3, 8);
-            this.txtBaseURL.Name = "txtBaseURL";
-            this.txtBaseURL.Size = new System.Drawing.Size(617, 20);
-            this.txtBaseURL.TabIndex = 9;
-            // 
             // lblBaseURL
             // 
             this.lblBaseURL.AutoSize = true;
@@ -477,18 +479,6 @@ namespace FeedBuilder
             this.cmdFeedXML.UseVisualStyleBackColor = true;
             this.cmdFeedXML.Click += new System.EventHandler(this.cmdFeedXML_Click);
             // 
-            // txtFeedXML
-            // 
-            this.txtFeedXML.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtFeedXML.BackColor = System.Drawing.Color.White;
-            this.txtFeedXML.HelpfulText = "The file your application downloads to determine if there are updates";
-            this.txtFeedXML.Location = new System.Drawing.Point(146, 55);
-            this.txtFeedXML.Margin = new System.Windows.Forms.Padding(3, 3, 3, 8);
-            this.txtFeedXML.Name = "txtFeedXML";
-            this.txtFeedXML.Size = new System.Drawing.Size(617, 20);
-            this.txtFeedXML.TabIndex = 4;
-            // 
             // lblFeedXML
             // 
             this.lblFeedXML.AutoSize = true;
@@ -508,18 +498,6 @@ namespace FeedBuilder
             this.cmdOutputFolder.Text = "...";
             this.cmdOutputFolder.UseVisualStyleBackColor = true;
             this.cmdOutputFolder.Click += new System.EventHandler(this.cmdOutputFolder_Click);
-            // 
-            // txtOutputFolder
-            // 
-            this.txtOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtOutputFolder.BackColor = System.Drawing.Color.White;
-            this.txtOutputFolder.HelpfulText = "The folder that contains the files you want to distribute";
-            this.txtOutputFolder.Location = new System.Drawing.Point(146, 24);
-            this.txtOutputFolder.Margin = new System.Windows.Forms.Padding(3, 3, 3, 8);
-            this.txtOutputFolder.Name = "txtOutputFolder";
-            this.txtOutputFolder.Size = new System.Drawing.Size(617, 20);
-            this.txtOutputFolder.TabIndex = 1;
             // 
             // lblOutputFolder
             // 
@@ -541,14 +519,64 @@ namespace FeedBuilder
             this.txtAddExtension.Size = new System.Drawing.Size(98, 20);
             this.txtAddExtension.TabIndex = 18;
             // 
-            // lblAddExtension
+            // txtBaseURL
             // 
-            this.lblAddExtension.AutoSize = true;
-            this.lblAddExtension.Location = new System.Drawing.Point(433, 146);
-            this.lblAddExtension.Name = "lblAddExtension";
-            this.lblAddExtension.Size = new System.Drawing.Size(77, 13);
-            this.lblAddExtension.TabIndex = 19;
-            this.lblAddExtension.Text = "Add extension:";
+            this.txtBaseURL.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtBaseURL.HelpfulText = "Where you will upload the feed and update files for distribution to clients";
+            this.txtBaseURL.Location = new System.Drawing.Point(146, 86);
+            this.txtBaseURL.Margin = new System.Windows.Forms.Padding(3, 3, 3, 8);
+            this.txtBaseURL.Name = "txtBaseURL";
+            this.txtBaseURL.Size = new System.Drawing.Size(617, 20);
+            this.txtBaseURL.TabIndex = 9;
+            // 
+            // txtFeedXML
+            // 
+            this.txtFeedXML.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtFeedXML.BackColor = System.Drawing.Color.White;
+            this.txtFeedXML.HelpfulText = "The file your application downloads to determine if there are updates";
+            this.txtFeedXML.Location = new System.Drawing.Point(146, 55);
+            this.txtFeedXML.Margin = new System.Windows.Forms.Padding(3, 3, 3, 8);
+            this.txtFeedXML.Name = "txtFeedXML";
+            this.txtFeedXML.Size = new System.Drawing.Size(617, 20);
+            this.txtFeedXML.TabIndex = 4;
+            // 
+            // txtOutputFolder
+            // 
+            this.txtOutputFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtOutputFolder.BackColor = System.Drawing.Color.White;
+            this.txtOutputFolder.HelpfulText = "The folder that contains the files you want to distribute";
+            this.txtOutputFolder.Location = new System.Drawing.Point(146, 24);
+            this.txtOutputFolder.Margin = new System.Windows.Forms.Padding(3, 3, 3, 8);
+            this.txtOutputFolder.Name = "txtOutputFolder";
+            this.txtOutputFolder.Size = new System.Drawing.Size(617, 20);
+            this.txtOutputFolder.TabIndex = 1;
+            // 
+            // chkIgnoreXml
+            // 
+            this.chkIgnoreXml.AutoSize = true;
+            this.chkIgnoreXml.Checked = true;
+            this.chkIgnoreXml.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkIgnoreXml.Location = new System.Drawing.Point(407, 173);
+            this.chkIgnoreXml.Name = "chkIgnoreXml";
+            this.chkIgnoreXml.Size = new System.Drawing.Size(67, 17);
+            this.chkIgnoreXml.TabIndex = 20;
+            this.chkIgnoreXml.Text = "Xml Files";
+            this.chkIgnoreXml.UseVisualStyleBackColor = true;
+            // 
+            // chkIgnoreLog
+            // 
+            this.chkIgnoreLog.AutoSize = true;
+            this.chkIgnoreLog.Checked = true;
+            this.chkIgnoreLog.CheckState = System.Windows.Forms.CheckState.Checked;
+            this.chkIgnoreLog.Location = new System.Drawing.Point(480, 173);
+            this.chkIgnoreLog.Name = "chkIgnoreLog";
+            this.chkIgnoreLog.Size = new System.Drawing.Size(68, 17);
+            this.chkIgnoreLog.TabIndex = 20;
+            this.chkIgnoreLog.Text = "Log Files";
+            this.chkIgnoreLog.UseVisualStyleBackColor = true;
             // 
             // frmMain
             // 
@@ -626,5 +654,7 @@ namespace FeedBuilder
 		private ToolStripSeparator toolStripSeparator1;
         private Label lblAddExtension;
         private HelpfulTextBox txtAddExtension;
-    }
+		private CheckBox chkIgnoreLog;
+		private CheckBox chkIgnoreXml;
+	}
 }

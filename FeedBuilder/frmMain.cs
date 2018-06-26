@@ -557,8 +557,19 @@ namespace FeedBuilder
 		private bool IsIgnorable(string filename)
 		{
 			var ext = Path.GetExtension(filename);
-			if (chkIgnoreSymbols.Checked && ext == ".pdb") return true;
-			return chkIgnoreVsHost.Checked && filename.ToLower().Contains("vshost.exe");
+
+			var result = false;
+
+			if (chkIgnoreSymbols.Checked && ext == ".pdb")
+				result = true;
+			else if (chkIgnoreLog.Checked && ext == ".log")
+				result = true;
+			else if (chkIgnoreXml.Checked && ext == ".xml")
+				result = true;
+			else if (chkIgnoreVsHost.Checked && filename.ToLower().Contains("vshost.exe"))
+				result = true;
+
+			return result;
 		}
 
 		private string AddExtensionToPath(string filePath, string extension)
