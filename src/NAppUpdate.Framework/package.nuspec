@@ -4,7 +4,7 @@
     <!--*-->
     <id>NAppUpdateBR</id>
     <!--*-->
-    <version>1.0.2</version>
+    <version>1.0.3</version>
     <title>NAppUpdate - .NET Application Updater</title>
     <!--*-->
     <authors>Itamar Syn-Hershko</authors>
@@ -18,7 +18,9 @@
     <!--*-->
     <description>Library for easy and flexible integration of application update mechanism</description>
     <!--*-->
-    <releaseNotes>NAppUpdateBR</releaseNotes>
+    <releaseNotes>NAppUpdateBR - 1.0.3
+
+[+] Adiciona description no objeto status de progresso</releaseNotes>
     <copyright>Copyright © 2010-2012 Itamar Syn-Hershko</copyright>
     <tags>
     </tags>
