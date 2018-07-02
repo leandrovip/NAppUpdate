@@ -67,7 +67,7 @@ namespace NAppUpdate.Framework.Utils
 				}
 				else
 				{
-					throw new TimeoutException("The NamedPipeServerStream timed out waiting for a named pipe connection.");
+					//throw new TimeoutException("The NamedPipeServerStream timed out waiting for a named pipe connection.");
 				}
 			}
 
