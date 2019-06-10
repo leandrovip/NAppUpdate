@@ -80,7 +80,7 @@ namespace NAppUpdate.Updater
 			{
 				Log("Loading {0}", assemblyPath);
 
-				if (assemblyPath.Equals(Assembly.GetEntryAssembly().Location, StringComparison.InvariantCultureIgnoreCase) ||
+				if (assemblyPath.Equals(Assembly.GetEntryAssembly()?.Location, StringComparison.InvariantCultureIgnoreCase) ||
 				    assemblyPath.EndsWith("NAppUpdate.Framework.dll"))
 				{
 					Log("\tSkipping (part of current execution)");

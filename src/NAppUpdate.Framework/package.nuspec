@@ -4,30 +4,25 @@
     <!--*-->
     <id>NAppUpdateBR</id>
     <!--*-->
-    <version>1.0.3</version>
+    <version>1.0.4</version>
     <title>NAppUpdate - .NET Application Updater</title>
     <!--*-->
     <authors>Itamar Syn-Hershko</authors>
     <owners>Itamar Syn-Hershko</owners>
-    <!--
-    <licenseUrl></licenseUrl>
-    <projectUrl></projectUrl>
-    <iconUrl></iconUrl>
--->
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <!--*-->
     <description>Library for easy and flexible integration of application update mechanism</description>
     <!--*-->
-    <releaseNotes>NAppUpdateBR - 1.0.3
+    <releaseNotes>NAppUpdateBR - 1.0.4
 
-[+] Adiciona description no objeto status de progresso</releaseNotes>
+[-] Ajustes </releaseNotes>
     <copyright>Copyright © 2010-2012 Itamar Syn-Hershko</copyright>
     <tags>
     </tags>
-    <dependencies>
-      <!--
-      <dependency id="SampleDependency" version="1.0" />
--->
-    </dependencies>
+
   </metadata>
+  
+  	  <files>
+        <file src="bin\Release\NAppUpdate.Framework.dll" target="lib\net462\NAppUpdate.Framework.dll"/>
+    </files>
 </package>
